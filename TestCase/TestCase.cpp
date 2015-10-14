@@ -19,7 +19,12 @@ int main()
 	ptrConnInfo->SetTimeout(60);
 
 	Ptr<MySQLConnection> ptrConn = MySQLConnection::Create();
-	bool b = ptrConn->CreateRepository(ptrConnInfo);
+	bool b = ptrConn->DropRepository(ptrConnInfo);
+	b = ptrConn->CreateRepository(ptrConnInfo);
+
+	b = ptrConn->Open(ptrConnInfo);
+	b = ptrConn->CreateDataNameSpace(L"蜀国会");
+	b = ptrConn->DeleteDataNameSpace(L"蜀国会");
 	b = ptrConn->DropRepository(ptrConnInfo);
 	return 0;
 }

@@ -119,14 +119,16 @@ bool MySQLConnection::CreateRepository(const ConnectionInfo* pConn)
 
 	const char* pszTableSchema = 
 		"CREATE TABLE TASK(id INT NOT NULL AUTO_INCREMENT,\n\
-		idx INT NOT NULL,\n\
+		idx INT NOT NULL DEFAULT 0,\n\
 		level INT NOT NULL DEFAULT 1,\n\
 		func varchar(255) NOT NULL,\n\
 		ns varchar(255) NOT NULL,\n\
-		updatetime INT NOT NULL,\n\
+		updatetime INT NOT NULL DEFAULT 0,\n\
 		timeout INT NOT NULL,\n\
 		host varchar(255),\n\
 		ip varchar(255),\n\
+		createDatetime timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,\n\
+		finishDatetime timestamp,\n\
 		status INT NOT NULL DEFAULT 0,\n\
 		data MEDIUMBLOB ,\n\
 		PRIMARY KEY(id),\n\
@@ -211,25 +213,51 @@ Task* MySQLConnection::GetTask(const std::wstring& strFunctionName)
 {
 	if(!m_bOpen)
 		return NULL;
+
+	if(!Ping())
+		return NULL;
+
+	//锁定Task表
+	//获取任务列表，按照level排序，status = 0的 （for update进行独占锁）
+	//获取一个可用的TASK并更新它的状态等信息
+	//sql
+	const char* pszSQL = "";
+
 	return NULL;
 }
 
 void MySQLConnection::FinishTask(const Task* pTask)
 {
+	if(!m_bOpen)
+		return;
+
+	if(!Ping())
+		return;
+
 	if(NULL == pTask)
 		return;
+
 	const RuntimeTask* pRuntimeTask = dynamic_cast<const RuntimeTask*>(pTask);
 	if(NULL == pRuntimeTask)
 		return;
 
-	if(!m_bOpen)
-		return;
+	//锁定该条记录
+	//检查idx是否一致不一致说明超时等原因被其他人拿走了。
+	//更新Task的状态
+
 }
 
 void MySQLConnection::CreateTasks(const std::vector<Ptr<Task> >& tasks)
 {
 	if(!m_bOpen)
 		return;
+
+	if(!Ping())
+		return;
+
+	//先获取当前服务器时间
+	const char* pszSQL = 
+		"insert into TASK(level,func,ns,timeout,host,ip,data) values(?,?,?,?,?,?,?)";
 }
 
 void MySQLConnection::GetTaskStatus(const std::wstring& strFunction
@@ -239,6 +267,18 @@ void MySQLConnection::GetTaskStatus(const std::wstring& strFunction
 {
 	if(!m_bOpen)
 		return;
+
+	if(!Ping())
+		return;
+
+	//nFinished
+	const char* pszSQL = 
+		"SELECT count(*) from TASK where func = ? and ns = ? and status = 1";
+
+	//nTotal
+	pszSQL = 
+		"SELECT count(*) from TASK where func = ? and ns = ?";
+
 }
 
 void MySQLConnection::DeleteTasks(const std::wstring& strFunction
@@ -246,29 +286,138 @@ void MySQLConnection::DeleteTasks(const std::wstring& strFunction
 {
 	if(!m_bOpen)
 		return;
+
+	if(!Ping())
+		return;
+
+	//
+	std::string strTable = Unicode2Utf8(strNameSpace);
+	const char* pszSQL = 
+		"SELECT count(*) from TASK where func = ? and ns = ? and status = 0";
+
+	//查询如果有记录就不能删除
+
+	pszSQL = "DELETE FROM TASK WHERE func = ? and ns = ?";
 }
 
-void MySQLConnection::CreateDataNameSpace(const std::wstring& strNameSpace)
+bool MySQLConnection::CreateDataNameSpace(const std::wstring& strNameSpace)
 {
+	if(!m_bOpen)
+		return false;
 
+	if(!Ping())
+		return false;
+
+	std::string strDatabase = Unicode2Utf8(m_connInfo->GetDatabase());
+	std::string strTable = Unicode2Utf8(strNameSpace);
+	MYSQL* mysql = (MYSQL*)m_mysql;
+
+	int errorid = mysql_query(mysql,"use information_schema");
+	if(errorid)
+	{
+		return false;
+	}
+
+	char sql[1024];
+	sprintf(sql
+			,"select TABLE_NAME from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA='%s' and TABLE_NAME='%s'"
+			, strDatabase.c_str()
+			, strTable.c_str());
+	errorid = mysql_real_query(mysql,sql,strlen(sql));
+	if(errorid)
+	{
+		return false;
+	}
+	bool bHasSchema = false;
+	MYSQL_RES* r = mysql_store_result(mysql);
+	if(0 == mysql_num_rows(r))
+	{
+		bHasSchema =false;
+	}
+	else
+	{
+		bHasSchema = true;
+	}
+	mysql_free_result(r);
+	if(bHasSchema)
+	{
+		return false;
+	}
+
+	sprintf(sql,"USE `%s`",strDatabase.c_str());
+	errorid = mysql_real_query(mysql,sql,strlen(sql));
+	if(errorid)
+	{
+		return false;
+	}
+
+	sprintf(sql
+		,"CREATE TABLE `%s` \n\
+		(`key` varchar(255) NOT NULL,\n\
+		`value` MEDIUMBLOB ,\n\
+		PRIMARY KEY(`key`)\n\
+		) ENGINE=INNODB DEFAULT CHARSET=UTF8;"
+		, strTable.c_str());
+	errorid = mysql_real_query(mysql,sql,strlen(sql));
+	if(errorid)
+	{
+		return false;
+	}
+	return true;
 }
 
-void MySQLConnection::DeleteDataNameSpace(const std::wstring& strNameSpace)
+bool MySQLConnection::DeleteDataNameSpace(const std::wstring& strNameSpace)
 {
+	if(!m_bOpen)
+		return false;
+	if(!Ping())
+		return false;
 
+	std::string strTable = Unicode2Utf8(strNameSpace);
+	MYSQL* mysql = (MYSQL*)m_mysql;
+
+	char sql[1024];
+	sprintf(sql,"DROP TABLE IF EXISTS `%s`",strTable.c_str());
+	int errorid = mysql_real_query(mysql,sql,strlen(sql));
+	if(errorid)
+	{
+		return false;
+	}
+	return true;
 }
 
 const void* MySQLConnection::ReadData(const std::wstring& strNameSpace
+										, const std::wstring& strKey
 										, int& nBufferLen)
 {
-	return NULL;
+	if(!m_bOpen)
+		return NULL;
+
+	if(!Ping())
+		return NULL;
+
+	//sql
+	std::string strTable = Unicode2Utf8(strNameSpace);
+	char sql[1024];
+	sprintf(sql,"SELECT `value` from `%s` where `key` = ?",strTable.c_str());
 }
 
 void MySQLConnection::WriteData(const std::wstring& strNameSpace
+								, const std::wstring& strKey
 								, const void* pBuffer
 								, int nBufferLen)
 {
+	if(!m_bOpen)
+		return;
 
+	if(!Ping())
+		return;
+	//sql
+	std::string strTable = Unicode2Utf8(strNameSpace);
+	char sql[1024];
+	sprintf(sql
+			, "INSERT `%s`(`key`,`value`) values (?,?) ON DUPLICATE KEY UPDATE `value` = ?"
+			, strTable.c_str());
 }
 
 bool MySQLConnection::Open(const ConnectionInfo* pConnInfo)
@@ -312,10 +461,29 @@ bool MySQLConnection::Open(const ConnectionInfo* pConnInfo)
 	}
 
 	m_bOpen = true;
+	m_connInfo = pConnInfo->Clone();
 	return true;
 }
 
 void MySQLConnection::Close()
 {
+	if(!m_bOpen)
+		return;
+	Ping();
 
+	MYSQL* mysql = (MYSQL*)m_mysql;
+	mysql_close(mysql);
+
+	m_bOpen = false;
+	free(m_mysql);
+	m_mysql = NULL;
+
+}
+
+bool MySQLConnection::Ping()
+{
+	if(!m_bOpen)
+		return false;
+	int n = mysql_ping((MYSQL*)m_mysql);
+	return n == 0;
 }

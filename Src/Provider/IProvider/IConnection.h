@@ -30,14 +30,16 @@ public:
 	virtual void DeleteTasks(const std::wstring& strFunction
 							, const std::wstring& strNameSpace) = 0;
 
-	virtual void CreateDataNameSpace(const std::wstring& strNameSpace) = 0;
+	virtual bool CreateDataNameSpace(const std::wstring& strNameSpace) = 0;
 
-	virtual void DeleteDataNameSpace(const std::wstring& strNameSpace) = 0;
+	virtual bool DeleteDataNameSpace(const std::wstring& strNameSpace) = 0;
 
 	virtual const void* ReadData(const std::wstring& strNameSpace
+								, const std::wstring& strKey
 								, int& nBufferLen) = 0;
 
 	virtual void WriteData(const std::wstring& strNameSpace
+							, const std::wstring& strKey
 							, const void* pBuffer
 							, int nBufferLen) = 0;
 };

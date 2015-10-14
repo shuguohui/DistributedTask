@@ -16,6 +16,20 @@ ConnectionInfo* ConnectionInfo::Create()
 	return new	 ConnectionInfo;
 }
 
+ConnectionInfo* ConnectionInfo::Clone() const
+{
+	ConnectionInfo* pConn = new ConnectionInfo;
+	pConn->m_database = this->m_database;
+	pConn->m_server = this->m_server;
+	pConn->m_instance = this->m_instance;
+	pConn->m_userName = this->m_userName;
+	pConn->m_password = this->m_password;
+	pConn->m_port = this->m_port;
+	pConn->m_timeout = this->m_timeout;
+	pConn->m_Type = this->m_Type;
+	return pConn;
+}
+
 ConnectionInfo::ConnectionType ConnectionInfo::GetType() const
 {
 	return m_Type;

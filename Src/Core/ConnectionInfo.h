@@ -24,6 +24,8 @@ protected:
 public:
 	static ConnectionInfo* Create();
 
+	ConnectionInfo* Clone() const;
+
 	ConnectionInfo::ConnectionType GetType() const;
 
 	void SetType(ConnectionInfo::ConnectionType type);

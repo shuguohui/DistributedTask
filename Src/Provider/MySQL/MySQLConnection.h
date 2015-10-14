@@ -39,25 +39,28 @@ public:
 	virtual void DeleteTasks(const std::wstring& strFunction
 							, const std::wstring& strNameSpace);
 
-	virtual void CreateDataNameSpace(const std::wstring& strNameSpace);
+	virtual bool CreateDataNameSpace(const std::wstring& strNameSpace);
 
-	virtual void DeleteDataNameSpace(const std::wstring& strNameSpace);
+	virtual bool DeleteDataNameSpace(const std::wstring& strNameSpace);
 
 	virtual const void* ReadData(const std::wstring& strNameSpace
+								, const std::wstring& strKey
 								, int& nBufferLen);
 
 	virtual void WriteData(const std::wstring& strNameSpace
+							, const std::wstring& strKey
 							, const void* pBuffer
 							, int nBufferLen);
 
 private:
 	void Close();
 
-
+	bool Ping();
 	
 private:
 	void* m_mysql;
 	bool m_bOpen;
+	Ptr<ConnectionInfo> m_connInfo;
 
 };
 #endif
