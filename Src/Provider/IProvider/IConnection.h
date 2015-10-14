@@ -3,14 +3,17 @@
 #include <Core/IDisposable.h>
 #include <Core/Ptr.h>
 #include <Core/Task.h>
+#include <Core/ConnectionInfo.h>
 #include <string>
 #include <vector>
 class IConnection : public IDisposable
 {
 public:
-	virtual bool CreateRepository() = 0;
+	virtual bool CreateRepository(const ConnectionInfo* pConn) = 0;
 
-	virtual bool DropRepository() = 0;
+	virtual bool DropRepository(const ConnectionInfo* pConn) = 0;
+
+	virtual bool Open(const ConnectionInfo* pConnInfo) = 0;
 
 	virtual Task* GetTask(const std::wstring& strFunctionName) = 0;
 

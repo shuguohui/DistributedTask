@@ -19,42 +19,32 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\Provider\MySQL\dllmain.cpp" />
-    <ClCompile Include="..\..\Provider\MySQL\MySQLConnection.cpp" />
-    <ClCompile Include="..\..\Provider\MySQL\stdafx.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\Provider\MySQL\ReadMe.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\..\Provider\MySQL\MySQLConnection.h" />
-    <ClInclude Include="..\..\Provider\MySQL\stdafx.h" />
-    <ClInclude Include="..\..\Provider\MySQL\targetver.h" />
+    <ClCompile Include="TestCase.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{6DFB571B-F015-43BC-BA8D-8A43444C7DB1}</ProjectGuid>
+    <ProjectGuid>{519B1A3A-4A50-419A-863B-78882A7B2DB3}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>MySQLProvider</RootNamespace>
+    <RootNamespace>TestCase</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
@@ -77,69 +67,65 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>..\..\..\Bin\$(Configuration)\$(Platform)</OutDir>
-    <IntDir>..\..\..\Obj\$(Configuration)\$(Platform)\MySQLProvider</IntDir>
-    <TargetName>TaskMySQLD</TargetName>
+    <OutDir>..\Bin\$(Configuration)\$(Platform)</OutDir>
+    <IntDir>..\Obj\$(Configuration)\$(Platform)\TestCase</IntDir>
+    <TargetName>$(ProjectName)</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>..\..\..\Bin\$(Configuration)\$(Platform)</OutDir>
-    <IntDir>..\..\..\Obj\$(Configuration)\$(Platform)\MySQLProvider</IntDir>
-    <TargetName>TaskMySQLD</TargetName>
+    <OutDir>..\Bin\$(Configuration)\$(Platform)</OutDir>
+    <IntDir>..\Obj\$(Configuration)\$(Platform)\TestCase</IntDir>
+    <TargetName>$(ProjectName)</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>..\..\..\Bin\$(Configuration)\$(Platform)</OutDir>
-    <IntDir>..\..\..\Obj\$(Configuration)\$(Platform)\MySQLProvider</IntDir>
-    <TargetName>TaskMySQL</TargetName>
+    <OutDir>..\Bin\$(Configuration)\$(Platform)</OutDir>
+    <IntDir>..\Obj\$(Configuration)\$(Platform)\TestCase</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>..\..\..\Bin\$(Configuration)\$(Platform)</OutDir>
-    <IntDir>..\..\..\Obj\$(Configuration)\$(Platform)\MySQLProvider</IntDir>
-    <TargetName>TaskMySQL</TargetName>
+    <OutDir>..\Bin\$(Configuration)\$(Platform)</OutDir>
+    <IntDir>..\Obj\$(Configuration)\$(Platform)\TestCase</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;MYSQLPROVIDER_EXPORTS;EXP_GVI_TASK_PROVIDER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>../../;../../ThirdPartyLibrary/MySQL/$(Platform)/include</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../Src</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>../../../Lib/$(Configuration)/$(Platform);../../ThirdPartyLibrary/MySQL/$(Platform)/lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>TASKCORED.lib;libmysql.lib;mysqlclient.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>$(OutDir)TaskMySQLD$(TargetExt)</OutputFile>
-      <ImportLibrary>../../../Lib/$(Configuration)/$(Platform)/TaskMySQLD.lib</ImportLibrary>
-      <ModuleDefinitionFile>MySQLProviderd.def</ModuleDefinitionFile>
+      <ImportLibrary>
+      </ImportLibrary>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+      <ModuleDefinitionFile>
+      </ModuleDefinitionFile>
+      <AdditionalLibraryDirectories>../Lib/$(Configuration)/$(Platform)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>TASKCORED.lib;TaskMySQLD.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
-    <PostBuildEvent>
-      <Command>xcopy  "../../ThirdPartyLibrary/MySQL/$(Platform)/bin/libmysql.dll" /s "$(OutDir)"</Command>
-    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;MYSQLPROVIDER_EXPORTS;EXP_GVI_TASK_PROVIDER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>../../;../../ThirdPartyLibrary/MySQL/$(Platform)/include</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../Src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>../../../Lib/$(Configuration)/$(Platform);../../ThirdPartyLibrary/MySQL/$(Platform)/lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>TASKCORED.lib;libmysql.lib;mysqlclient.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>$(OutDir)TaskMySQLD$(TargetExt)</OutputFile>
-      <ImportLibrary>../../../Lib/$(Configuration)/$(Platform)/TaskMySQLD.lib</ImportLibrary>
-      <ModuleDefinitionFile>MySQLProviderd.def</ModuleDefinitionFile>
+      <ImportLibrary>
+      </ImportLibrary>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+      <ModuleDefinitionFile>
+      </ModuleDefinitionFile>
+      <AdditionalLibraryDirectories>../Lib/$(Configuration)/$(Platform)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>TASKCORED.lib;TaskMySQLD.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
-    <PostBuildEvent>
-      <Command>xcopy /dry  "../../ThirdPartyLibrary/MySQL/$(Platform)/bin/*.dll" /s "$(OutDir)"</Command>
-    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -148,23 +134,21 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;MYSQLPROVIDER_EXPORTS;EXP_GVI_TASK_PROVIDER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>../../;../../ThirdPartyLibrary/MySQL/$(Platform)/include</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../Src</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>../../../Lib/$(Configuration)/$(Platform);../../ThirdPartyLibrary/MySQL/$(Platform)/lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>TASKCORE.lib;libmysql.lib;mysqlclient.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <ImportLibrary>../../../Lib/$(Configuration)/$(Platform)/TaskMySQL.lib</ImportLibrary>
-      <ModuleDefinitionFile>MySQLProvider.def</ModuleDefinitionFile>
-      <OutputFile>$(OutDir)TaskMySQL$(TargetExt)</OutputFile>
+      <ImportLibrary>
+      </ImportLibrary>
+      <ModuleDefinitionFile>
+      </ModuleDefinitionFile>
+      <AdditionalLibraryDirectories>../Lib/$(Configuration)/$(Platform)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>TASKCORE.lib;TaskMySQL.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
-    <PostBuildEvent>
-      <Command>xcopy /dry  "../../ThirdPartyLibrary/MySQL/$(Platform)/bin/*.dll" /s "$(OutDir)"</Command>
-    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -173,23 +157,21 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;MYSQLPROVIDER_EXPORTS;EXP_GVI_TASK_PROVIDER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>../../;../../ThirdPartyLibrary/MySQL/$(Platform)/include</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../Src</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>../../../Lib/$(Configuration)/$(Platform);../../ThirdPartyLibrary/MySQL/$(Platform)/lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>TASKCORE.lib;libmysql.lib;mysqlclient.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <ImportLibrary>../../../Lib/$(Configuration)/$(Platform)/TaskMySQL.lib</ImportLibrary>
-      <ModuleDefinitionFile>MySQLProvider.def</ModuleDefinitionFile>
-      <OutputFile>$(OutDir)TaskMySQL$(TargetExt)</OutputFile>
+      <ImportLibrary>
+      </ImportLibrary>
+      <ModuleDefinitionFile>
+      </ModuleDefinitionFile>
+      <AdditionalLibraryDirectories>../Lib/$(Configuration)/$(Platform)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>TASKCORE.lib;TaskMySQL.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
-    <PostBuildEvent>
-      <Command>xcopy /dry  "../../ThirdPartyLibrary/MySQL/$(Platform)/bin/*.dll" /s "$(OutDir)"</Command>
-    </PostBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
