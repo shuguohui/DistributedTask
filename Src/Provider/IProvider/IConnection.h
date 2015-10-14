@@ -1,29 +1,30 @@
 #ifndef _ICONNECTION_H_
 #define _ICONNECTION_H_
-#include "IDisposable.h"
-#include "Ptr.h"
-#include "Task.h"
+#include <Core/IDisposable.h>
+#include <Core/Ptr.h>
+#include <Core/Task.h>
 #include <string>
 #include <vector>
 class IConnection : public IDisposable
 {
 public:
-	virtual bool CreateRepository();
+	virtual bool CreateRepository() = 0;
 
-	virtual bool DropRepository();
+	virtual bool DropRepository() = 0;
 
-	virtual Task* GetTask(const std::wstring& strFunctionName);
+	virtual Task* GetTask(const std::wstring& strFunctionName) = 0;
 
-	virtual void FinishTask(const Task* pTask);
+	virtual void FinishTask(const Task* pTask) = 0;
 
-	virtual void CreateTasks(const std::vector<Ptr<Task> >& tasks);
+	virtual void CreateTasks(const std::vector<Ptr<Task> >& tasks) = 0;
 
-	void GetTaskStatus(const std::wstring& strFunction
-						, const std::wstring& strNameSpace
-						, int& nFinished
-						, int& nTotal);
+	virtual void GetTaskStatus(const std::wstring& strFunction
+								, const std::wstring& strNameSpace
+								, int& nFinished
+								, int& nTotal) = 0;
 
 	//todo 只有全完成的Task才能删除？只要有一个还没完成就删除失败？
-	void DeleteTasks(const std::wstring& strFunction
-					, const std::wstring& strNameSpace);
-}
+	virtual void DeleteTasks(const std::wstring& strFunction
+							, const std::wstring& strNameSpace) = 0;
+};
+#endif

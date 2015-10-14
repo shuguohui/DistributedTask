@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Provider\IProvider\IConnection.h" />
+    <ClInclude Include="..\..\Provider\IProvider\stdafx.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{6DFB571B-F011-43BC-BA8D-8A43444C7DB1}</ProjectGuid>

@@ -2,7 +2,7 @@
 #define _RUNTIMETASK_H_
 #include "Task.h"
 #include <string>
-class RuntimeTask : public Task
+class GVI_API_TASK RuntimeTask : public Task
 {
 protected:
 	RuntimeTask();

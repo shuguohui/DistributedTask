@@ -2,7 +2,7 @@
 #define _TASK_H_
 #include "IDisposable.h"
 #include <string>
-class Task : public IDisposable
+class GVI_API_TASK Task : public IDisposable
 {
 protected:
 	Task();
@@ -38,9 +38,9 @@ private:
 	std::wstring m_functionName;
 	std::wstring m_namespace;
 	unsigned int m_level;
-	unsigned m_dataLen;
+	unsigned int m_dataLen;
 	unsigned char* m_data;
-	unsigned m_timeout;
+	unsigned int m_timeout;
 };
 
 #endif

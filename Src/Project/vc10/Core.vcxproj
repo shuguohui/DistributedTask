@@ -19,22 +19,28 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Core\ConnectionInfo.cpp" />
     <ClCompile Include="..\..\Core\dllmain.cpp" />
+    <ClCompile Include="..\..\Core\Exception.cpp" />
     <ClCompile Include="..\..\Core\IDisposable.cpp" />
     <ClCompile Include="..\..\Core\RuntimeTask.cpp" />
     <ClCompile Include="..\..\Core\stdafx.cpp" />
     <ClCompile Include="..\..\Core\Task.cpp" />
+    <ClCompile Include="..\..\Core\utf8_.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\Core\ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Core\ConnectionInfo.h" />
+    <ClInclude Include="..\..\Core\Exception.h" />
     <ClInclude Include="..\..\Core\IDisposable.h" />
     <ClInclude Include="..\..\Core\Ptr.h" />
     <ClInclude Include="..\..\Core\RuntimeTask.h" />
     <ClInclude Include="..\..\Core\stdafx.h" />
     <ClInclude Include="..\..\Core\targetver.h" />
     <ClInclude Include="..\..\Core\Task.h" />
+    <ClInclude Include="..\..\Core\utf8_.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{5D9B1A3A-4A50-419A-863B-78882A7B2DB3}</ProjectGuid>
