@@ -12,5 +12,15 @@
 #include <windows.h>
 
 
+#ifdef _WIN32
+#ifdef EXP_GVI_TASK
+#    define GVI_API_TASK __declspec(dllexport)
+#else
+#    define GVI_API_TASK __declspec(dllimport)
+#endif
+#else
+#define GVI_API_TASK
+#endif
+
 
 // TODO: 在此处引用程序需要的其他头文件
