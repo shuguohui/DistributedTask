@@ -11,6 +11,14 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MySQLProvider", "MySQLProvi
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IProvider", "IProvider.vcxproj", "{6DFB571B-F011-43BC-BA8D-8A43444C7DB1}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TestCase", "TestCase", "{D650ADC2-FEBD-43F8-8805-8A2D7C2FDF6B}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestCase", "..\..\..\TestCase\TestCase.vcxproj", "{519B1A3A-4A50-419A-863B-78882A7B2DB3}"
+	ProjectSection(ProjectDependencies) = postProject
+		{6DFB571B-F015-43BC-BA8D-8A43444C7DB1} = {6DFB571B-F015-43BC-BA8D-8A43444C7DB1}
+		{5D9B1A3A-4A50-419A-863B-78882A7B2DB3} = {5D9B1A3A-4A50-419A-863B-78882A7B2DB3}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -39,8 +47,19 @@ Global
 		{6DFB571B-F011-43BC-BA8D-8A43444C7DB1}.Debug|x64.ActiveCfg = Debug|x64
 		{6DFB571B-F011-43BC-BA8D-8A43444C7DB1}.Release|Win32.ActiveCfg = Release|Win32
 		{6DFB571B-F011-43BC-BA8D-8A43444C7DB1}.Release|x64.ActiveCfg = Release|x64
+		{519B1A3A-4A50-419A-863B-78882A7B2DB3}.Debug|Win32.ActiveCfg = Debug|Win32
+		{519B1A3A-4A50-419A-863B-78882A7B2DB3}.Debug|Win32.Build.0 = Debug|Win32
+		{519B1A3A-4A50-419A-863B-78882A7B2DB3}.Debug|x64.ActiveCfg = Debug|x64
+		{519B1A3A-4A50-419A-863B-78882A7B2DB3}.Debug|x64.Build.0 = Debug|x64
+		{519B1A3A-4A50-419A-863B-78882A7B2DB3}.Release|Win32.ActiveCfg = Release|Win32
+		{519B1A3A-4A50-419A-863B-78882A7B2DB3}.Release|Win32.Build.0 = Release|Win32
+		{519B1A3A-4A50-419A-863B-78882A7B2DB3}.Release|x64.ActiveCfg = Release|x64
+		{519B1A3A-4A50-419A-863B-78882A7B2DB3}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{519B1A3A-4A50-419A-863B-78882A7B2DB3} = {D650ADC2-FEBD-43F8-8805-8A2D7C2FDF6B}
 	EndGlobalSection
 EndGlobal

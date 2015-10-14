@@ -119,7 +119,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ImportLibrary>..\..\..\Lib\$(Configuration)\$(Platform)\TASKCORED.lib</ImportLibrary>
-      <OutputFile>$(OutDir)$(TargetName)D$(TargetExt)</OutputFile>
+      <OutputFile>$(OutDir)TASKCORED$(TargetExt)</OutputFile>
       <ModuleDefinitionFile>Cored.def</ModuleDefinitionFile>
     </Link>
   </ItemDefinitionGroup>
@@ -134,7 +134,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ImportLibrary>..\..\..\Lib\$(Configuration)\$(Platform)\TASKCORED.lib</ImportLibrary>
-      <OutputFile>$(OutDir)$(TargetName)D$(TargetExt)</OutputFile>
+      <OutputFile>$(OutDir)TASKCORED$(TargetExt)</OutputFile>
       <ModuleDefinitionFile>Cored.def</ModuleDefinitionFile>
     </Link>
   </ItemDefinitionGroup>
@@ -154,6 +154,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <ImportLibrary>..\..\..\Lib\$(Configuration)\$(Platform)\TASKCORE.lib</ImportLibrary>
       <ModuleDefinitionFile>Core.def</ModuleDefinitionFile>
+      <OutputFile>$(OutDir)TASKCORE$(TargetExt)</OutputFile>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -172,6 +173,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <ImportLibrary>..\..\..\Lib\$(Configuration)\$(Platform)\TASKCORE.lib</ImportLibrary>
       <ModuleDefinitionFile>Core.def</ModuleDefinitionFile>
+      <OutputFile>$(OutDir)TASKCORE$(TargetExt)</OutputFile>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

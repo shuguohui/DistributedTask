@@ -17,11 +17,13 @@ protected:
 		delete this;
 	}
 public:
-	static MySQLConnection* Create(const ConnectionInfo* pConnInfo);
+	static MySQLConnection* Create();
 
-	virtual bool CreateRepository();
+	virtual bool Open(const ConnectionInfo* pConnInfo);
 
-	virtual bool DropRepository();
+	virtual  bool CreateRepository(const ConnectionInfo* pConn);
+
+	virtual  bool DropRepository(const ConnectionInfo* pConn);
 
 	virtual Task* GetTask(const std::wstring& strFunctionName);
 
@@ -37,12 +39,25 @@ public:
 	virtual void DeleteTasks(const std::wstring& strFunction
 							, const std::wstring& strNameSpace);
 
+	virtual void CreateDataNameSpace(const std::wstring& strNameSpace);
+
+	virtual void DeleteDataNameSpace(const std::wstring& strNameSpace);
+
+	virtual const void* ReadData(const std::wstring& strNameSpace
+								, int& nBufferLen);
+
+	virtual void WriteData(const std::wstring& strNameSpace
+							, const void* pBuffer
+							, int nBufferLen);
+
 private:
 	void Close();
 
-	bool Open(const ConnectionInfo* pConnInfo);
+
+	
 private:
 	void* m_mysql;
+	bool m_bOpen;
 
 };
 #endif
