@@ -9,7 +9,7 @@ class IDisposable
 {
 protected:
 
-    GVI_API_TASK IDisposable() : m_refCount(1), m_objectThreadLockingEnabled(false) {};
+    GVI_API_TASK IDisposable() : m_refCount(0), m_objectThreadLockingEnabled(false) {};
 
     
     GVI_API_TASK virtual ~IDisposable() {};

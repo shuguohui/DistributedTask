@@ -9,6 +9,14 @@
 class IConnection : public IDisposable
 {
 public:
+	enum TransactionIsolation
+	{
+		ReadUnCommitted = 1,
+		ReadCommitted = 2,
+		RepeatableRead = 3,
+		Serialiable = 4,
+	};
+public:
 	virtual bool CreateRepository(const ConnectionInfo* pConn) = 0;
 
 	virtual bool DropRepository(const ConnectionInfo* pConn) = 0;
@@ -34,13 +42,27 @@ public:
 
 	virtual bool DeleteDataNameSpace(const std::wstring& strNameSpace) = 0;
 
-	virtual const void* ReadData(const std::wstring& strNameSpace
+	virtual bool  ReadData(const std::wstring& strNameSpace
 								, const std::wstring& strKey
+								, const void** pBuffer
 								, int& nBufferLen) = 0;
 
-	virtual void WriteData(const std::wstring& strNameSpace
+	virtual bool WriteData(const std::wstring& strNameSpace
 							, const std::wstring& strKey
 							, const void* pBuffer
 							, int nBufferLen) = 0;
+
+	//事务相关
+	virtual void SetTransactionIsolation(TransactionIsolation isolation) = 0;
+
+	virtual TransactionIsolation GetTransactionIsolation() const = 0;
+
+	virtual bool BeginTrans() = 0;
+
+	virtual bool CommitTrans() = 0;
+
+	virtual bool RollbackTrans() = 0;
+
+	virtual bool TranStarted() const  = 0;
 };
 #endif

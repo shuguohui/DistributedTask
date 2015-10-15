@@ -21,15 +21,19 @@
   <ItemGroup>
     <ClCompile Include="..\..\Provider\MySQL\dllmain.cpp" />
     <ClCompile Include="..\..\Provider\MySQL\MySQLConnection.cpp" />
+    <ClCompile Include="..\..\Provider\MySQL\MySQLPreparedStatement.cpp" />
     <ClCompile Include="..\..\Provider\MySQL\stdafx.cpp" />
+    <ClCompile Include="..\..\Provider\MySQL\TransactionGurad.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\Provider\MySQL\ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Provider\MySQL\MySQLConnection.h" />
+    <ClInclude Include="..\..\Provider\MySQL\MySQLPreparedStatement.h" />
     <ClInclude Include="..\..\Provider\MySQL\stdafx.h" />
     <ClInclude Include="..\..\Provider\MySQL\targetver.h" />
+    <ClInclude Include="..\..\Provider\MySQL\TransactionGurad.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{6DFB571B-F015-43BC-BA8D-8A43444C7DB1}</ProjectGuid>
@@ -111,7 +115,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>../../../Lib/$(Configuration)/$(Platform);../../ThirdPartyLibrary/MySQL/$(Platform)/lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>TASKCORED.lib;libmysql.lib;mysqlclient.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>TASKCORED.lib;libmysql.lib;mysqlclient.lib;ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)TaskMySQLD$(TargetExt)</OutputFile>
       <ImportLibrary>../../../Lib/$(Configuration)/$(Platform)/TaskMySQLD.lib</ImportLibrary>
       <ModuleDefinitionFile>MySQLProviderd.def</ModuleDefinitionFile>
@@ -132,7 +136,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>../../../Lib/$(Configuration)/$(Platform);../../ThirdPartyLibrary/MySQL/$(Platform)/lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>TASKCORED.lib;libmysql.lib;mysqlclient.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>TASKCORED.lib;libmysql.lib;mysqlclient.lib;ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)TaskMySQLD$(TargetExt)</OutputFile>
       <ImportLibrary>../../../Lib/$(Configuration)/$(Platform)/TaskMySQLD.lib</ImportLibrary>
       <ModuleDefinitionFile>MySQLProviderd.def</ModuleDefinitionFile>
@@ -157,7 +161,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>../../../Lib/$(Configuration)/$(Platform);../../ThirdPartyLibrary/MySQL/$(Platform)/lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>TASKCORE.lib;libmysql.lib;mysqlclient.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>TASKCORE.lib;libmysql.lib;mysqlclient.lib;ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ImportLibrary>../../../Lib/$(Configuration)/$(Platform)/TaskMySQL.lib</ImportLibrary>
       <ModuleDefinitionFile>MySQLProvider.def</ModuleDefinitionFile>
       <OutputFile>$(OutDir)TaskMySQL$(TargetExt)</OutputFile>
@@ -182,7 +186,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>../../../Lib/$(Configuration)/$(Platform);../../ThirdPartyLibrary/MySQL/$(Platform)/lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>TASKCORE.lib;libmysql.lib;mysqlclient.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>TASKCORE.lib;libmysql.lib;mysqlclient.lib;ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ImportLibrary>../../../Lib/$(Configuration)/$(Platform)/TaskMySQL.lib</ImportLibrary>
       <ModuleDefinitionFile>MySQLProvider.def</ModuleDefinitionFile>
       <OutputFile>$(OutDir)TaskMySQL$(TargetExt)</OutputFile>

@@ -15,6 +15,8 @@ protected:
 	}
 
 public:
+	static RuntimeTask* Create();
+
 	int GetUpdateTime() const;
 
 	void SetUpdateTime(int nUpdateTime);

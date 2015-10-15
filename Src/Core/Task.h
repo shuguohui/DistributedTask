@@ -34,6 +34,8 @@ public:
 	void SetTaskLevel(unsigned int nLevel);
 
 	void SetData(const unsigned char* pBuffer,unsigned int nBufferLen);
+
+	const unsigned char* GetData(unsigned int& nBufferLen);
 private:
 	std::wstring m_functionName;
 	std::wstring m_namespace;

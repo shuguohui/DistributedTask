@@ -40,6 +40,8 @@ public:
     Ptr(T* lp) throw()
     {
         p = lp;
+		if (p != NULL)
+			p->AddRef();
     }
 
 
@@ -111,6 +113,8 @@ public:
     {
         SAFE_RELEASE(p);
         p = lp;
+		if(p)
+			p->AddRef();
         return p;
     }
     

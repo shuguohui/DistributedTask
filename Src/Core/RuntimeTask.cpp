@@ -12,6 +12,10 @@ RuntimeTask::~RuntimeTask()
 
 }
 
+RuntimeTask* RuntimeTask::Create()
+{
+	return new RuntimeTask;
+}
 
 int RuntimeTask::GetUpdateTime() const
 {
