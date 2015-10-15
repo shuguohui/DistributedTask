@@ -30,7 +30,8 @@ public:
 
 	virtual void FinishTask(const Task* pTask);
 
-	virtual void CreateTasks(const std::vector<Ptr<Task> >& tasks);
+	virtual void CreateTasks(const std::vector<Ptr<Task> >& tasks
+							, const std::wstring& strNameSapce);
 
 	virtual void GetTaskStatus(const std::wstring& strFunction
 								, const std::wstring& strNameSpace
@@ -40,9 +41,11 @@ public:
 	virtual void DeleteTasks(const std::wstring& strFunction
 							, const std::wstring& strNameSpace);
 
-	virtual bool CreateDataNameSpace(const std::wstring& strNameSpace);
+	virtual std::vector<std::wstring> GetNameSpaces();
 
-	virtual bool DeleteDataNameSpace(const std::wstring& strNameSpace);
+	virtual bool CreateNameSpace(const std::wstring& strNameSpace);
+
+	virtual bool DeleteNameSpace(const std::wstring& strNameSpace);
 
 	virtual bool ReadData(const std::wstring& strNameSpace
 								, const std::wstring& strKey
@@ -80,6 +83,8 @@ public:
 private:
 	void Close();
 	const char* GetTransactionIsolationString(TransactionIsolation isolate);
+
+	bool Lock();
 private:
 	void* m_mysql;
 	bool m_bOpen;

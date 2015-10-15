@@ -56,16 +56,15 @@ struct tm MySQLConnection::GetDatabaseTime()
 		if(!ptrStatement->Fetch())
 			return GetLocalTime();
 
-		const char* psz = ptrStatement->GetString(0);
+		MYSQL_TIME my_time = ptrStatement->GetDateTime(0);
 		tm tm_;  
-		int year, month, day, hour, minute,second;  
-		sscanf(psz,"%d-%d-%d %d:%d:%d", &year, &month, &day, &hour, &minute, &second);  
-		tm_.tm_year  = year-1900;  
-		tm_.tm_mon   = month-1;  
-		tm_.tm_mday  = day;  
-		tm_.tm_hour  = hour;  
-		tm_.tm_min   = minute;  
-		tm_.tm_sec   = second;  
+		
+		tm_.tm_year  = my_time.year-1900;  
+		tm_.tm_mon   = my_time.month-1;  
+		tm_.tm_mday  = my_time.day;  
+		tm_.tm_hour  = my_time.hour;  
+		tm_.tm_min   = my_time.minute;  
+		tm_.tm_sec   = my_time.second;  
 		tm_.tm_isdst = 0;
 		return tm_;
 	}
@@ -278,6 +277,20 @@ bool MySQLConnection::DropRepository(const ConnectionInfo* pConn)
 	return true;
 }
 
+bool MySQLConnection::Lock()
+{
+	const char* pszSQL = "select * from `LOCK` where id=1 for update";
+	std::vector<MySQLPreparedStatement::Field> fields;
+	Ptr<MySQLPreparedStatement>  ptrStatement = 
+		MySQLPreparedStatement::Create(this,pszSQL,fields);
+	if(NULL == ptrStatement)
+		return false;
+
+	if(!ptrStatement->Excute())
+		return false;
+	ptrStatement = NULL;
+	return true;
+}
 Task* MySQLConnection::GetTask(const std::wstring& strFunctionName)
 {
 	if(!m_bOpen)
@@ -291,29 +304,21 @@ Task* MySQLConnection::GetTask(const std::wstring& strFunctionName)
 	int nowTimeSecond = mktime(&nowTime);
 
 	TransactionGurad transHelper(this);
-	const char* pszSQL = "select * from `LOCK` where id=1 for update";
-	std::vector<MySQLPreparedStatement::Field> fields;
-	Ptr<MySQLPreparedStatement>  ptrStatement = 
-		MySQLPreparedStatement::Create(this,pszSQL,fields);
-	if(NULL == ptrStatement)
+	if(!Lock())
 		return NULL;
-
-	if(!ptrStatement->Excute())
-		return NULL;
-
-	ptrStatement = NULL;
 	
 	//获取任务列表，按照level排序，status = 0的 （for update进行独占锁）
 	//获取一个可用的TASK并更新它的状态等信息
 	//sql
-	pszSQL = 
+	const char* pszSQL = 
 		"select `id`,`idx`,`level`,`func`,`ns`,`updatetime`,`timeout`,`data` FROM `TASK` where `func` = ? and `status` = 0 order by `level` desc";
+	std::vector<MySQLPreparedStatement::Field> fields;
 	fields.push_back(MySQLPreparedStatement::Field(MYSQL_TYPE_VARCHAR,255));
-	ptrStatement = 
+	Ptr<MySQLPreparedStatement> ptrStatement = 
 		MySQLPreparedStatement::Create(this,pszSQL,fields);
 	if(NULL == ptrStatement)
 		return NULL;
-	//ptrStatement->SetInt(0,pRuntimeTask->GetTaskID());
+	ptrStatement->SetString(0,Unicode2Utf8(strFunctionName).c_str());
 
 	if(!ptrStatement->Excute())
 		return NULL;
@@ -340,7 +345,7 @@ Task* MySQLConnection::GetTask(const std::wstring& strFunctionName)
 		pTask->SetTaskLevel(level);
 		pTask->SetTimeOut(timeout);
 		pTask->SetUpdateTime(nowTimeSecond);
-		
+		pTask->SetData((const unsigned char*)pBuffer,nBufferLen);
 		break;
 	}
 	ptrStatement = NULL;
@@ -405,21 +410,13 @@ void MySQLConnection::FinishTask(const Task* pTask)
 		return;
 
 	TransactionGurad transHelper(this);
-	const char* pszSQL = "select * from `LOCK` where id=1 for update";
-	std::vector<MySQLPreparedStatement::Field> fields;
-	Ptr<MySQLPreparedStatement>  ptrStatement = 
-		MySQLPreparedStatement::Create(this,pszSQL,fields);
-	if(NULL == ptrStatement)
-		return ;
-
-	if(!ptrStatement->Excute())
+	if(!Lock())
 		return;
 
-	ptrStatement = NULL;
-
-	pszSQL = "select idx from `TASK` where id = ?";
+	const char* pszSQL = "select idx from `TASK` where id = ?";
+	std::vector<MySQLPreparedStatement::Field> fields;
 	fields.push_back(MySQLPreparedStatement::Field(MYSQL_TYPE_LONG,sizeof(int)));
-	ptrStatement = 
+	Ptr<MySQLPreparedStatement>  ptrStatement = 
 		MySQLPreparedStatement::Create(this,pszSQL,fields);
 	if(NULL == ptrStatement)
 		return ;
@@ -433,10 +430,10 @@ void MySQLConnection::FinishTask(const Task* pTask)
 	int nIdx = ptrStatement->GetInt(0);
 	if(nIdx != pRuntimeTask->GetIDX())
 		return;
-	
+	ptrStatement = NULL;
 	//更新Task的状态
 	pszSQL = "UPDATE `TASK` SET finishDatetime = now(),`STATUS` = 1 where id=?";
-		ptrStatement = 
+	ptrStatement = 
 		MySQLPreparedStatement::Create(this,pszSQL,fields);
 	if(NULL == ptrStatement)
 		return ;
@@ -444,11 +441,12 @@ void MySQLConnection::FinishTask(const Task* pTask)
 
 	if(!ptrStatement->Excute())
 		return;
-
+	ptrStatement = NULL;
 	transHelper.Commit();
 }
 
-void MySQLConnection::CreateTasks(const std::vector<Ptr<Task> >& tasks)
+void MySQLConnection::CreateTasks(const std::vector<Ptr<Task> >& tasks
+									, const std::wstring& strNameSapce)
 {
 	if(tasks.empty())
 		return;
@@ -459,35 +457,41 @@ void MySQLConnection::CreateTasks(const std::vector<Ptr<Task> >& tasks)
 	if(!Ping())
 		return;
 
+	//先检查是不是有这个namespace
+	std::vector<std::wstring> ns = GetNameSpaces();
+	bool bHasNS = false;
+	for (std::vector<std::wstring>::const_iterator citer = ns.begin();
+		citer != ns.end();
+		++citer)
+	{
+		if(_wcsicmp(citer->c_str(),strNameSapce.c_str()) == 0)
+		{
+			bHasNS = true;
+			break;
+		}
+	}
+	if(!bHasNS)
+		return;
 	
 	TransactionGurad transHelper(this);
-	const char* pszSQL = "select * from `LOCK` where id=1 for update";
-	std::vector<MySQLPreparedStatement::Field> fields;
-	Ptr<MySQLPreparedStatement> ptrStatement = 
-		MySQLPreparedStatement::Create(this,pszSQL,fields);
-	if(NULL == ptrStatement)
-		return ;
-
-	if(!ptrStatement->Excute())
+	if(!Lock())
 		return;
 
-	ptrStatement = NULL;
+	const char* pszSQL = "insert into `TASK`(level,func,ns,timeout,data) values(?,?,?,?,?)";
 
-	pszSQL = "insert into `TASK`(level,func,ns,timeout,data) values(?,?,?,?,?)";
-
-	//std::vector<MySQLPreparedStatement::Field> fields;
+	std::vector<MySQLPreparedStatement::Field> fields;
 	fields.push_back(MySQLPreparedStatement::Field(MYSQL_TYPE_LONG,sizeof(int)));
 	fields.push_back(MySQLPreparedStatement::Field(MYSQL_TYPE_VARCHAR,255));
 	fields.push_back(MySQLPreparedStatement::Field(MYSQL_TYPE_VARCHAR,255));
 	fields.push_back(MySQLPreparedStatement::Field(MYSQL_TYPE_LONG,sizeof(int)));
 	fields.push_back(MySQLPreparedStatement::Field(MYSQL_TYPE_MEDIUM_BLOB,MAX_BLOB_LEN));
-	ptrStatement = 
+	Ptr<MySQLPreparedStatement>  ptrStatement = 
 		MySQLPreparedStatement::Create(this,pszSQL,fields);
 	if(NULL == ptrStatement)
 		return ;
 
 	
-	
+	std::string strUTF8NS = Unicode2Utf8(strNameSapce);
 	unsigned int nBufferLen = 0;
 	for (std::vector<Ptr<Task> >::const_iterator citer = tasks.begin();
 		citer != tasks.end();
@@ -496,7 +500,7 @@ void MySQLConnection::CreateTasks(const std::vector<Ptr<Task> >& tasks)
 		Task* pTask = citer->operator Task *();
 		ptrStatement->SetInt(0,pTask->GetTaskLevel());
 		ptrStatement->SetString(1,Unicode2Utf8(pTask->GetFunctionName()).c_str());
-		ptrStatement->SetString(2,Unicode2Utf8(pTask->GetNamespace()).c_str());
+		ptrStatement->SetString(2,strUTF8NS.c_str());
 		ptrStatement->SetInt(3,pTask->GetTimeOut());
 
 		const unsigned char* pBuffer = pTask->GetData(nBufferLen);
@@ -510,9 +514,9 @@ void MySQLConnection::CreateTasks(const std::vector<Ptr<Task> >& tasks)
 }
 
 void MySQLConnection::GetTaskStatus(const std::wstring& strFunction
-	, const std::wstring& strNameSpace
-	, int& nFinished
-	, int& nTotal)
+									, const std::wstring& strNameSpace
+									, int& nFinished
+									, int& nTotal)
 {
 	if(!m_bOpen)
 		return;
@@ -520,14 +524,44 @@ void MySQLConnection::GetTaskStatus(const std::wstring& strFunction
 	if(!Ping())
 		return;
 
+	std::string strUtf8Func = Unicode2Utf8(strFunction);
+	std::string strUtf8NS = Unicode2Utf8(strNameSpace);
 	//nFinished
 	const char* pszSQL = 
 		"SELECT count(*) from TASK where func = ? and ns = ? and status = 1";
+	std::vector<MySQLPreparedStatement::Field> fields;
+	fields.push_back(MySQLPreparedStatement::Field(MYSQL_TYPE_VARCHAR,255));
+	fields.push_back(MySQLPreparedStatement::Field(MYSQL_TYPE_VARCHAR,255));
+	Ptr<MySQLPreparedStatement> ptrStatement = 
+		MySQLPreparedStatement::Create(this,pszSQL,fields);
+	if(NULL == ptrStatement)
+		return ;
+	ptrStatement->SetString(0,strUtf8Func.c_str());
+	ptrStatement->SetString(1,strUtf8NS.c_str());
+	if(!ptrStatement->Excute())
+		return;
+	if(!ptrStatement->Fetch())
+		return;
+
+	nFinished = ptrStatement->GetInt(0);
+	ptrStatement = NULL;
 
 	//nTotal
 	pszSQL = 
 		"SELECT count(*) from TASK where func = ? and ns = ?";
+	ptrStatement = 
+		MySQLPreparedStatement::Create(this,pszSQL,fields);
+	if(NULL == ptrStatement)
+		return ;
+	ptrStatement->SetString(0,strUtf8Func.c_str());
+	ptrStatement->SetString(1,strUtf8NS.c_str());
+	if(!ptrStatement->Excute())
+		return;
+	if(!ptrStatement->Fetch())
+		return;
 
+	nTotal = ptrStatement->GetInt(0);
+	ptrStatement = NULL;
 }
 
 void MySQLConnection::DeleteTasks(const std::wstring& strFunction
@@ -565,21 +599,10 @@ void MySQLConnection::DeleteTasks(const std::wstring& strFunction
 
 	
 	TransactionGurad transHelper(this);
-	pszSQL = "select * from `LOCK` where id=1 for update";
-	fields.clear();
-	ptrStatement = 
-		MySQLPreparedStatement::Create(this,pszSQL,fields);
-	if(NULL == ptrStatement)
-		return ;
-
-	if(!ptrStatement->Excute())
+	if(!Lock())
 		return;
 
-	ptrStatement = NULL;
-
 	pszSQL = "DELETE FROM TASK WHERE func = ? and ns = ?";
-	fields.push_back(MySQLPreparedStatement::Field(MYSQL_TYPE_VARCHAR,255));
-	fields.push_back(MySQLPreparedStatement::Field(MYSQL_TYPE_VARCHAR,255));
 	ptrStatement = 
 		MySQLPreparedStatement::Create(this,pszSQL,fields);
 	if(NULL == ptrStatement)
@@ -593,8 +616,36 @@ void MySQLConnection::DeleteTasks(const std::wstring& strFunction
 
 	transHelper.Commit();
 }
+std::vector<std::wstring> MySQLConnection::GetNameSpaces()
+{
+	std::vector<std::wstring> ns;
+	if(!m_bOpen)
+		return ns;
 
-bool MySQLConnection::CreateDataNameSpace(const std::wstring& strNameSpace)
+	if(!Ping())
+		return ns;
+	std::string strDatabase = Unicode2Utf8(m_connInfo->GetDatabase());
+	const char* pszSQL = 
+		"select TABLE_NAME from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA= ?";
+	std::vector<MySQLPreparedStatement::Field> fields;
+	fields.push_back(MySQLPreparedStatement::Field(MYSQL_TYPE_VARCHAR,255));
+	Ptr<MySQLPreparedStatement> ptrStatement = 
+		MySQLPreparedStatement::Create(this,pszSQL,fields);
+	if(NULL == ptrStatement)
+		return ns;
+	ptrStatement->SetString(0,strDatabase.c_str());
+	if(!ptrStatement->Excute())
+		return ns;
+	while(ptrStatement->Fetch())
+	{
+		const char* pszValue = ptrStatement->GetString(0);
+		if(stricmp(pszValue,"TASK") == 0 || stricmp(pszValue,"LOCK") == 0)
+			continue;
+		ns.push_back(Utf82Unicode(pszValue));
+	}
+	return ns;
+}
+bool MySQLConnection::CreateNameSpace(const std::wstring& strNameSpace)
 {
 	if(!m_bOpen)
 		return false;
@@ -660,7 +711,7 @@ bool MySQLConnection::CreateDataNameSpace(const std::wstring& strNameSpace)
 	return true;
 }
 
-bool MySQLConnection::DeleteDataNameSpace(const std::wstring& strNameSpace)
+bool MySQLConnection::DeleteNameSpace(const std::wstring& strNameSpace)
 {
 	if(!m_bOpen)
 		return false;

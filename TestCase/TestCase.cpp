@@ -25,8 +25,8 @@ int main()
 	b = ptrConn->CreateRepository(ptrConnInfo);
 
 	b = ptrConn->Open(ptrConnInfo);
-	b = ptrConn->CreateDataNameSpace(L"蜀国会");
-
+	b = ptrConn->CreateNameSpace(L"test");
+	b = ptrConn->CreateNameSpace(L"test1");
 	std::string str = "shuguohui";
 
 	std::vector<Ptr<Task> > tasks;
@@ -36,14 +36,23 @@ int main()
 	task->SetData((unsigned char*)str.c_str(),str.length());
 	tasks.push_back(task);
 
+	str = "shuguohui1";
 	task = Task::Create();
-	task->SetFunctionName(_T("test1"));
+	task->SetFunctionName(_T("test"));
 	task->SetNamespace(_T("test1"));
 	task->SetData((unsigned char*)str.c_str(),str.length());
 	tasks.push_back(task);
 
-	ptrConn->CreateTasks(tasks);
-	ptrConn->DeleteTasks(_T("test1"),_T("test1"));
+	ptrConn->CreateTasks(tasks,_T("test"));
+
+	Ptr<Task> ptrTask = ptrConn->GetTask(L"test");
+	ptrConn->FinishTask(ptrTask);
+
+	int nFinish;
+	int nTotal;
+	ptrConn->GetTaskStatus(L"test",L"test",nFinish,nTotal);
+
+	ptrConn->DeleteTasks(_T("test"),_T("test"));
 	
 	b = ptrConn->WriteData(L"蜀国会",L"shuguohui",str.c_str(),str.length());
 
@@ -62,7 +71,7 @@ int main()
 	b = nLen == str.length();
 	std::string str2(pBuffer,nLen);
 
-	//b = ptrConn->DeleteDataNameSpace(L"蜀国会");
+	b = ptrConn->DeleteNameSpace(L"蜀国会");
 	//b = ptrConn->DropRepository(ptrConnInfo);
 	return 0;
 }

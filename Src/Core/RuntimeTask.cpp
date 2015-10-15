@@ -3,6 +3,9 @@
 #include "RuntimeTask.h"
 
 RuntimeTask::RuntimeTask()
+	: m_updateTime(0)
+	, m_taskID(-1)
+	, m_idx(0)
 {
 
 }
@@ -44,7 +47,7 @@ int RuntimeTask::GetIDX() const
 
 void RuntimeTask::SetIDX(int nIDX)
 {
-	m_idx;
+	m_idx = nIDX;
 }
 
 const std::wstring& RuntimeTask::GetHost() const

@@ -23,11 +23,16 @@ public:
 
 	virtual bool Open(const ConnectionInfo* pConnInfo) = 0;
 
+	//virtual std::vector<std::wstring> GetFunctionNames() = 0;
+
+	virtual std::vector<std::wstring> GetNameSpaces() = 0;
+
 	virtual Task* GetTask(const std::wstring& strFunctionName) = 0;
 
 	virtual void FinishTask(const Task* pTask) = 0;
 
-	virtual void CreateTasks(const std::vector<Ptr<Task> >& tasks) = 0;
+	virtual void CreateTasks(const std::vector<Ptr<Task> >& tasks
+							, const std::wstring& strNameSapce) = 0;
 
 	virtual void GetTaskStatus(const std::wstring& strFunction
 								, const std::wstring& strNameSpace
@@ -38,9 +43,9 @@ public:
 	virtual void DeleteTasks(const std::wstring& strFunction
 							, const std::wstring& strNameSpace) = 0;
 
-	virtual bool CreateDataNameSpace(const std::wstring& strNameSpace) = 0;
+	virtual bool CreateNameSpace(const std::wstring& strNameSpace) = 0;
 
-	virtual bool DeleteDataNameSpace(const std::wstring& strNameSpace) = 0;
+	virtual bool DeleteNameSpace(const std::wstring& strNameSpace) = 0;
 
 	virtual bool  ReadData(const std::wstring& strNameSpace
 								, const std::wstring& strKey
