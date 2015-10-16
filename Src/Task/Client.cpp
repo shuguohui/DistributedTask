@@ -64,4 +64,15 @@ std::vector<std::wstring> Client::GetNameSpaces()
 {
 	return m_conn->GetNameSpaces();
 }
+
+
+const ConnectionInfo* Client::GetConnectionInfo()
+{
+	return m_connInfo;
+}
+
+IConnection* Client::GetConnection()
+{
+	return m_conn;
+}
 NS_END

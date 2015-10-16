@@ -42,6 +42,9 @@ public:
 
 	std::vector<std::wstring> GetNameSpaces();
 
+	const ConnectionInfo* GetConnectionInfo();
+
+	IConnection* GetConnection();
 private:
 	Ptr<ConnectionInfo> m_connInfo;
 	Ptr<IConnection> m_conn;

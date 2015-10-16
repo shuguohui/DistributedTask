@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClCompile Include="..\..\Provider\MySQL\dllmain.cpp" />
     <ClCompile Include="..\..\Provider\MySQL\MySQLConnection.cpp" />
+    <ClCompile Include="..\..\Provider\MySQL\MySQLDataCursor.cpp" />
     <ClCompile Include="..\..\Provider\MySQL\MySQLPreparedStatement.cpp" />
     <ClCompile Include="..\..\Provider\MySQL\stdafx.cpp" />
     <ClCompile Include="..\..\Provider\MySQL\TransactionGurad.cpp" />
@@ -30,6 +31,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Provider\MySQL\MySQLConnection.h" />
+    <ClInclude Include="..\..\Provider\MySQL\MySQLDataCursor.h" />
     <ClInclude Include="..\..\Provider\MySQL\MySQLPreparedStatement.h" />
     <ClInclude Include="..\..\Provider\MySQL\stdafx.h" />
     <ClInclude Include="..\..\Provider\MySQL\targetver.h" />

@@ -7,6 +7,7 @@
 #include <string>
 #include <vector>
 NS_TASK
+class IDataCursor;
 class IConnection : public IDisposable
 {
 public:
@@ -56,6 +57,10 @@ public:
 								, const std::wstring& strKey
 								, const void** pBuffer
 								, int& nBufferLen) = 0;
+
+	//如果keys为空就返回所有keys的data
+	virtual IDataCursor* ReadDataCursor(const std::wstring& strNameSpace
+										, const std::vector<std::wstring>& keys) = 0;
 
 	virtual bool WriteData(const std::wstring& strNameSpace
 							, const std::wstring& strKey

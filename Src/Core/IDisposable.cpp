@@ -64,7 +64,7 @@ int IDisposable::Release()
         --m_refCount;
     }
 
-    if (0 != m_refCount)
+    if (m_refCount > 0)
         return m_refCount;
 
     Dispose();

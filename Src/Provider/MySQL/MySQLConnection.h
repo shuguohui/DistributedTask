@@ -3,6 +3,7 @@
 #include <Core/ConnectionInfo.h>
 #include <Core/IDisposable.h>
 #include <Provider/IProvider/IConnection.h>
+#include <Provider/IProvider/IDataCursor.h>
 #include <Provider/IProvider/stdafx.h>
 #include <string>
 
@@ -56,6 +57,9 @@ public:
 								, const std::wstring& strKey
 								, const void** pBuffer
 								, int& nBufferLen);
+
+	virtual IDataCursor* ReadDataCursor(const std::wstring& strNameSpace
+										, const std::vector<std::wstring>& keys);
 
 	virtual bool WriteData(const std::wstring& strNameSpace
 							, const std::wstring& strKey

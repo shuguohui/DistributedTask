@@ -1,5 +1,6 @@
 #include "MySQLConnection.h"
 #include "MySQLPreparedStatement.h"
+#include "MySQLDataCursor.h"
 #include "TransactionGurad.h"
 #include <Core/RuntimeTask.h>
 #include <Core/utf8_.h>
@@ -911,6 +912,17 @@ bool MySQLConnection::DeleteNameSpace(const std::wstring& strNameSpace)
 	return true;
 }
 
+IDataCursor* MySQLConnection::ReadDataCursor(const std::wstring& strNameSpace
+											, const std::vector<std::wstring>& keys)
+{
+	if(!m_bOpen)
+		return NULL;
+
+	if(!Ping())
+		return NULL;
+
+	return MySQLDataCursor::Create(this,strNameSpace,keys);
+}
 bool MySQLConnection::ReadData(const std::wstring& strNameSpace
 										, const std::wstring& strKey
 										, const void** pBuffer

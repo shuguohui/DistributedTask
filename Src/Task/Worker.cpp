@@ -96,6 +96,11 @@ bool  Worker::ReadData(const std::wstring& strNameSpace
 {
 	return m_conn->ReadData(strNameSpace,strKey,pBuffer,nBufferLen);
 }
+IDataCursor* Worker::ReadDataCursor(const std::wstring& strNameSpace
+									, const std::vector<std::wstring>& keys)
+{
+	return m_conn->ReadDataCursor(strNameSpace,keys);
+}
 
 bool Worker::WriteData(const std::wstring& strNameSpace
 						, const std::wstring& strKey
@@ -103,5 +108,15 @@ bool Worker::WriteData(const std::wstring& strNameSpace
 						, int nBufferLen)
 {
 	return m_conn->WriteData(strNameSpace,strKey,pBuffer,nBufferLen);
+}
+
+const ConnectionInfo* Worker::GetConnectionInfo()
+{
+	return m_connInfo;
+}
+
+IConnection* Worker::GetConnection()
+{
+	return m_conn;
 }
 NS_END
