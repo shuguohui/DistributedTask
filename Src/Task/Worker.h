@@ -6,6 +6,7 @@
 #include <Core/Ptr.h>
 #include <Core/Task.h>
 #include <Provider/IProvider/IConnection.h>
+#include <Provider/IProvider/IDataCursor.h>
 #include <Task/Function.h>
 #include <string>
 #include <map>
@@ -38,12 +39,17 @@ public:
 					, const void** pBuffer
 					, int& nBufferLen);
 
+	IDataCursor* ReadDataCursor(const std::wstring& strNameSpace
+								, const std::vector<std::wstring>& keys);
+
 	bool WriteData(const std::wstring& strNameSpace
 					, const std::wstring& strKey
 					, const void* pBuffer
 					, int nBufferLen);
 
+	const ConnectionInfo* GetConnectionInfo();
 
+	IConnection* GetConnection();
 private:
 	Ptr<ConnectionInfo> m_connInfo;
 	Ptr<IConnection> m_conn;

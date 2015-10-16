@@ -9,6 +9,7 @@
 #include <Core/ConnectionInfo.h>
 #include <Task/Manager.h>
 #include <Task/Client.h>
+#include "Task/Worker.h"
 #include <iostream>
 #include <vector>
 using namespace DT;
@@ -22,6 +23,24 @@ int main()
 	ptrConnInfo->SetPassword(L"666666");
 	ptrConnInfo->SetDatabase(L"TASK");
 	ptrConnInfo->SetTimeout(60);
+	/*{
+		std::vector<std::wstring> keys;
+		Ptr<Worker> ptrWorker = Worker::Create(ptrConnInfo);
+
+		Ptr<IDataCursor> ptrCursor = ptrWorker->ReadDataCursor(L"天安门",keys);
+		if(NULL == ptrCursor)
+			return 0;
+
+		while(ptrCursor->Next())
+		{
+			std::wstring key;
+			const void* pBuffer = NULL;
+			unsigned int nBufferLen = 0;
+			ptrCursor->GetKeyValue(&key,&pBuffer,&nBufferLen);
+			keys.push_back(key);
+		}
+		ptrCursor = NULL;
+	}*/
 
 	Ptr<Manager> ptrManager = Manager::Create(ptrConnInfo);
 	ptrManager->DropRepository();
@@ -80,12 +99,35 @@ int main()
 
 
 	//开始检查任务完成情况
+	std::vector<std::wstring> keys;
 	while(true)
 	{
 		int nFinished;
 		int nTotal;
 		ptrClient->GetTaskStatus(strFunc,strNS,nFinished,nTotal);
 		std::cout << "Task Status: " << nFinished << " / " << nTotal << std::endl;
+		if(keys.size() < 1000)
+		{
+			Ptr<Worker> ptrWorker = Worker::Create(ptrClient->GetConnectionInfo()->Clone());
+			
+			keys.clear();
+			Ptr<IDataCursor> ptrCursor = ptrWorker->ReadDataCursor(strNS,keys);
+			if(NULL == ptrCursor)
+				return 0;
+
+			
+			while(ptrCursor->Next())
+			{
+				std::wstring key;
+				const void* pBuffer = NULL;
+				unsigned int nBufferLen = 0;
+				ptrCursor->GetKeyValue(&key,&pBuffer,&nBufferLen);
+				keys.push_back(key);
+			}
+			ptrCursor = NULL;
+		}
+		
+		std::cout << "key count " << keys.size() << std::endl;
 		Sleep(5000);
 	}
 	return 0;
