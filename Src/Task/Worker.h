@@ -9,6 +9,7 @@
 #include <Task/Function.h>
 #include <string>
 #include <map>
+NS_TASK
 class GVI_API_TASK Worker : public IDisposable
 {
 protected:
@@ -32,11 +33,22 @@ public:
 
 	void Stop();
 
+	bool  ReadData(const std::wstring& strNameSpace
+					, const std::wstring& strKey
+					, const void** pBuffer
+					, int& nBufferLen);
+
+	bool WriteData(const std::wstring& strNameSpace
+					, const std::wstring& strKey
+					, const void* pBuffer
+					, int nBufferLen);
+
+
 private:
 	Ptr<ConnectionInfo> m_connInfo;
 	Ptr<IConnection> m_conn;
 	bool m_bRunning;
 	std::map<std::wstring,Ptr<Function> > m_regiterFuncs;
 };
-
+NS_END
 #endif

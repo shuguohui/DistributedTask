@@ -9,7 +9,7 @@
 #define GetClassNameA  GetClassName
 #endif // !UNICODE
 #endif
-
+NS_TASK
 /// Define the global state of the FdoIDisposable thread locking
 ///
 bool IDisposable::m_globalThreadLockingEnabled = false;
@@ -71,3 +71,4 @@ int IDisposable::Release()
     return 0;
 }
 
+NS_END

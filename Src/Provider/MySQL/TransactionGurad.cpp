@@ -1,4 +1,5 @@
 #include "TransactionGurad.h"
+NS_TASK
 TransactionGurad::TransactionGurad(IConnection* pConn)
 	:m_conn(pConn)
 	, m_bCommit(false)
@@ -40,3 +41,5 @@ bool TransactionGurad::Commit()
 	}
 	return false;
 }
+
+NS_END

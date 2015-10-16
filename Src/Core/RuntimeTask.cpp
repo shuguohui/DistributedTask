@@ -1,7 +1,5 @@
-
-
 #include "RuntimeTask.h"
-
+NS_TASK
 RuntimeTask::RuntimeTask()
 	: m_updateTime(0)
 	, m_taskID(-1)
@@ -69,3 +67,4 @@ void RuntimeTask::SetIP(const std::wstring& strIPAddress)
 {
 	m_ipAddress = strIPAddress;
 }
+NS_END

@@ -22,5 +22,11 @@
 #define GVI_API_TASK
 #endif
 
+#ifndef NS_TASK
+#define NS_TASK namespace DT {
+#endif
 
+#ifndef NS_END
+#define NS_END  }
+#endif
 // TODO: 在此处引用程序需要的其他头文件

@@ -1,5 +1,5 @@
 #include "MySQLPreparedStatement.h"
-
+NS_TASK
 
 MySQLPreparedStatement::MySQLPreparedStatement()
 	: m_paramCount(0)
@@ -303,3 +303,4 @@ const char* MySQLPreparedStatement::GetString(int nPos)
 {
 	return (const char*)m_result_buffer[nPos];
 }
+NS_END

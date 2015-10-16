@@ -2,6 +2,7 @@
 #define _RUNTIMETASK_H_
 #include "Task.h"
 #include <string>
+NS_TASK
 class GVI_API_TASK_CORE RuntimeTask : public Task
 {
 protected:
@@ -44,5 +45,5 @@ private:
 	std::wstring m_host;
 	std::wstring m_ipAddress;
 };
-
+NS_END
 #endif

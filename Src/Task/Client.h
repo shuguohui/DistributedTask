@@ -7,6 +7,8 @@
 #include <Core/Task.h>
 #include <Provider/IProvider/IConnection.h>
 #include <string>
+#include <vector>
+NS_TASK
 class GVI_API_TASK Client : public IDisposable
 {
 protected:
@@ -38,9 +40,11 @@ public:
 
 	bool DeleteNameSpace(const std::wstring& strNameSpace);
 
+	std::vector<std::wstring> GetNameSpaces();
+
 private:
 	Ptr<ConnectionInfo> m_connInfo;
 	Ptr<IConnection> m_conn;
 };
-
+NS_END
 #endif

@@ -4,10 +4,12 @@
 #include <Core/IDisposable.h>
 #include <Core/Ptr.h>
 #include <Core/Task.h>
-#include <Provider/IProvider/IConnection.h>
 #include <string>
 
-typedef bool (task_function_fn)(Task* pTask,IConnection* pConn,void* worker_context);
+NS_TASK
+class Worker;
+
+typedef bool (task_function_fn)(Task* pTask,Worker* pConn,void* worker_context);
 
 class GVI_API_TASK Function : public IDisposable
 {
@@ -32,5 +34,5 @@ private:
 	task_function_fn* m_callback;
 	
 };
-
+NS_END
 #endif

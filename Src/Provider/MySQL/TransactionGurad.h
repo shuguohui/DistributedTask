@@ -3,7 +3,7 @@
 #include <Provider/IProvider/IConnection.h>
 #include <Provider/IProvider/stdafx.h>
 #include <string>
-
+NS_TASK
 class  TransactionGurad
 {
 public:
@@ -16,4 +16,5 @@ private:
 	bool m_bCommit;
 	bool m_bInControl;
 };
+NS_END
 #endif

@@ -9,6 +9,7 @@
 #include <Core/ConnectionInfo.h>
 
 #include <Provider/MySQL/MySQLConnection.h>
+using namespace DT;
 int main()
 {
 	Ptr<ConnectionInfo> ptrConnInfo = ConnectionInfo::Create();

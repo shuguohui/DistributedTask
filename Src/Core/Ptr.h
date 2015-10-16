@@ -1,7 +1,7 @@
 
 #ifndef _Ptr_H_
 #define _Ptr_H_
-
+NS_TASK
 template <class T>
 class _NoAddRefReleaseOnPtr : public T
 {
@@ -168,6 +168,7 @@ public:
 
     T* p;
 };
+NS_END
 #endif
 
 

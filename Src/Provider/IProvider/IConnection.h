@@ -6,6 +6,7 @@
 #include <Core/ConnectionInfo.h>
 #include <string>
 #include <vector>
+NS_TASK
 class IConnection : public IDisposable
 {
 public:
@@ -28,6 +29,8 @@ public:
 	virtual std::vector<std::wstring> GetNameSpaces() = 0;
 
 	virtual Task* GetTask(const std::wstring& strFunctionName) = 0;
+
+	virtual Task* GetTask(const std::vector<std::wstring>& funcNames) = 0;
 
 	virtual void FinishTask(const Task* pTask) = 0;
 
@@ -72,4 +75,5 @@ public:
 
 	virtual bool TranStarted() const  = 0;
 };
+NS_END
 #endif

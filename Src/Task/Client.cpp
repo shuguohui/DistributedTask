@@ -1,6 +1,7 @@
 #include "Client.h"
 #include <Provider/MySQL/MySQLConnection.h>
 #include <iostream>
+NS_TASK
 Client::Client()
 {
 
@@ -58,3 +59,9 @@ bool Client::DeleteNameSpace(const std::wstring& strNameSpace)
 {
 	return m_conn->DeleteNameSpace(strNameSpace);
 }
+
+std::vector<std::wstring> Client::GetNameSpaces()
+{
+	return m_conn->GetNameSpaces();
+}
+NS_END

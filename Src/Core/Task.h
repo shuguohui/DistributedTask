@@ -2,6 +2,7 @@
 #define _TASK_H_
 #include "IDisposable.h"
 #include <string>
+NS_TASK
 class GVI_API_TASK_CORE Task : public IDisposable
 {
 protected:
@@ -44,5 +45,5 @@ private:
 	unsigned char* m_data;
 	unsigned int m_timeout;
 };
-
+NS_END
 #endif

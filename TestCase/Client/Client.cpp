@@ -7,10 +7,11 @@
 #include <Core/Ptr.h>
 #include <Core/Task.h>
 #include <Core/ConnectionInfo.h>
-
-#include <Provider/MySQL/MySQLConnection.h>
+#include <Task/Manager.h>
+#include <Task/Client.h>
 #include <iostream>
 #include <vector>
+using namespace DT;
 int main()
 {
 	Ptr<ConnectionInfo> ptrConnInfo = ConnectionInfo::Create();
@@ -22,18 +23,23 @@ int main()
 	ptrConnInfo->SetDatabase(L"TASK");
 	ptrConnInfo->SetTimeout(60);
 
-	Ptr<MySQLConnection> ptrConn = MySQLConnection::Create();
-	bool b = ptrConn->Open(ptrConnInfo);
-	if(!b)
+	Ptr<Manager> ptrManager = Manager::Create(ptrConnInfo);
+	ptrManager->DropRepository();
+	ptrManager->CreateRepository();
+	ptrManager = NULL;
+
+	Ptr<Client> ptrClient = Client::Create(ptrConnInfo);
+	if(NULL == ptrClient)
 	{
 		std::cout << "open failed!" << std::endl;
 		return 0;
 	}
 
-	std::vector<std::wstring> ns = ptrConn->GetNameSpaces();
+	std::vector<std::wstring> ns = ptrClient->GetNameSpaces();
 	bool bHasNS = false;
 	std::wstring strNS = L"天安门";
 	std::wstring strFunc = L"test";
+	bool b;
 	for (std::vector<std::wstring>::const_iterator citer = ns.begin();
 		citer != ns.end();
 		++citer)
@@ -46,7 +52,7 @@ int main()
 	}
 	if(!bHasNS)
 	{
-		b = ptrConn->CreateNameSpace(strNS);
+		b = ptrClient->CreateNameSpace(strNS);
 		if(!b)
 		{
 			std::cout << "CreateNameSpace failed!" << std::endl;
@@ -70,7 +76,7 @@ int main()
 		tasks.push_back(task);
 	}
 
-	ptrConn->CreateTasks(tasks,strNS);
+	ptrClient->CreateTasks(tasks,strNS);
 
 
 	//开始检查任务完成情况
@@ -78,7 +84,7 @@ int main()
 	{
 		int nFinished;
 		int nTotal;
-		ptrConn->GetTaskStatus(strFunc,strNS,nFinished,nTotal);
+		ptrClient->GetTaskStatus(strFunc,strNS,nFinished,nTotal);
 		std::cout << "Task Status: " << nFinished << " / " << nTotal << std::endl;
 		Sleep(5000);
 	}

@@ -7,10 +7,49 @@
 #include <Core/Ptr.h>
 #include <Core/Task.h>
 #include <Core/ConnectionInfo.h>
-
-#include <Provider/MySQL/MySQLConnection.h>
+#include <Task/Worker.h>
+#include <Task/Function.h>
 #include <iostream>
 #include <vector>
+using namespace DT;
+bool CallBack(Task* pTask,Worker* pConn,void* worker_context)
+{
+	std::wcout << L"Get Task,FuncName:" << pTask->GetFunctionName() 
+				<< L" NameSpace:" << pTask->GetNamespace() 
+				<< L" Level :"<< pTask->GetTaskLevel() << std::endl;
+
+	unsigned int nBufferLen = 0;
+	const unsigned char* pszValue = pTask->GetData(nBufferLen);
+	std::wstring strValue((const wchar_t*)pszValue,nBufferLen / sizeof(wchar_t));
+	std::wcout << L"Get Value:" << strValue << std::endl;
+	bool b = pConn->WriteData(pTask->GetNamespace(),strValue,strValue.c_str(),strValue.length() * sizeof(wchar_t));
+	if(!b)
+	{
+		std::cout << "WriteData failed!" << std::endl;
+		return false;
+	}
+
+	const char* pBuffer = NULL;
+	int nLen = 0;
+	b = pConn->ReadData(pTask->GetNamespace(),strValue,(const void**)&pBuffer,nLen);
+	if(!b || !(nLen == strValue.length() * sizeof(wchar_t)))
+	{
+		std::cout << "ReadData failed!" << std::endl;
+		return false;
+	}
+	std::wstring str2((const wchar_t* )pBuffer,nLen / sizeof(wchar_t));
+	if(_wcsicmp(str2.c_str(),strValue.c_str()))
+	{
+		std::cout << "ReadData failed!" << std::endl;
+		return false;
+	}
+
+
+	//Sleep(100);
+
+	return true;
+}
+
 int main()
 {
 	std::wcout.imbue(std::locale("chs"));
@@ -24,8 +63,11 @@ int main()
 	ptrConnInfo->SetDatabase(L"TASK");
 	ptrConnInfo->SetTimeout(60);
 
-	Ptr<MySQLConnection> ptrConn = MySQLConnection::Create();
-	bool b = ptrConn->Open(ptrConnInfo);
+	Ptr<Worker> ptrWorker = Worker::Create(ptrConnInfo);
+	Ptr<Function> ptrFunction = Function::Create(L"test",&CallBack);
+	ptrWorker->RegisterFunction(ptrFunction);
+	ptrWorker->Run();
+	/*bool b = ptrConn->Open(ptrConnInfo);
 	if(!b)
 	{
 		std::cout << "open failed!" << std::endl;
@@ -74,7 +116,7 @@ int main()
 
 		ptrConn->FinishTask(ptrTask);
 		Sleep(100);
-	}
+	}*/
 	return 0;
 }
 

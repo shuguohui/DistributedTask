@@ -6,7 +6,7 @@
 #include <errmsg.h>
 #include <string>
 
-
+NS_TASK
 class GVI_API_TASK_PROVIDER MySQLPreparedStatement: public IDisposable
 {
 public:
@@ -84,4 +84,5 @@ private:
 	my_bool*					m_result_isNULLs;
 	unsigned long*				m_result_lens;		
 };
+NS_END
 #endif

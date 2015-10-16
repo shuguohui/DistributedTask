@@ -1,5 +1,6 @@
 #include "Function.h"
 #include <iostream>
+NS_TASK
 Function::Function()
 {
 
@@ -26,3 +27,5 @@ task_function_fn* Function::GetCallBack() const
 {
 	return m_callback;
 }
+
+NS_END

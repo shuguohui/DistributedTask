@@ -1,6 +1,7 @@
 #include "Worker.h"
 #include <Provider/MySQL/MySQLConnection.h>
 #include <iostream>
+NS_TASK
 Worker::Worker()
 	:m_bRunning(false)
 {
@@ -49,7 +50,14 @@ void Worker::Run()
 	m_bRunning = true;
 	while(m_bRunning)
 	{
-		Ptr<Task> ptrTask = m_conn->GetTask(L"");
+		std::vector<std::wstring> funcNames;
+		for (std::map<std::wstring,Ptr<Function> >::const_iterator citer = m_regiterFuncs.begin();
+			citer != m_regiterFuncs.end();
+			++citer)
+		{
+			funcNames.push_back(citer->second->GetFunctionName());
+		}
+		Ptr<Task> ptrTask = m_conn->GetTask(funcNames);
 		if(NULL == ptrTask)
 		{
 			std::cout << "no task,sleep 3s " << std::endl;
@@ -64,7 +72,7 @@ void Worker::Run()
 		}
 		else
 		{
-			if(iter->second->GetCallBack()(ptrTask,m_conn,NULL))
+			if(iter->second->GetCallBack()(ptrTask,this,NULL))
 			{
 				m_conn->FinishTask(ptrTask);
 			}
@@ -80,3 +88,20 @@ void Worker::Stop()
 {
 	m_bRunning = false;
 }
+
+bool  Worker::ReadData(const std::wstring& strNameSpace
+						, const std::wstring& strKey
+						, const void** pBuffer
+						, int& nBufferLen)
+{
+	return m_conn->ReadData(strNameSpace,strKey,pBuffer,nBufferLen);
+}
+
+bool Worker::WriteData(const std::wstring& strNameSpace
+						, const std::wstring& strKey
+						, const void* pBuffer
+						, int nBufferLen)
+{
+	return m_conn->WriteData(strNameSpace,strKey,pBuffer,nBufferLen);
+}
+NS_END

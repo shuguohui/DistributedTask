@@ -4,10 +4,12 @@
 #include <Core/RuntimeTask.h>
 #include <Core/utf8_.h>
 #include <vector>
+#include <sstream>
 #include <process.h>
 #include <my_global.h>
 #include <mysql.h>
 #include <errmsg.h>
+NS_TASK
 MySQLConnection::MySQLConnection()
 	:m_mysql(NULL)
 	, m_bOpen(false)
@@ -294,6 +296,131 @@ bool MySQLConnection::Lock()
 	ptrStatement = NULL;
 	return true;
 }
+
+Task* MySQLConnection::GetTask(const std::vector<std::wstring>& funcNames)
+{
+	if(funcNames.empty())
+		return NULL;
+	if(!m_bOpen)
+		return NULL;
+
+	if(!Ping())
+		return NULL;
+
+
+	//获取当前时间
+	struct tm nowTime = GetDatabaseTime();
+	int nowTimeSecond = mktime(&nowTime);
+
+	TransactionGurad transHelper(this);
+	if(!Lock())
+		return NULL;
+
+	//获取任务列表，按照level排序，status = 0的 （for update进行独占锁）
+	//获取一个可用的TASK并更新它的状态等信息
+	//sql
+	int num_func = funcNames.size();
+	std::stringstream ss;
+	ss << "?";
+	for (int i = 1; i < num_func;i++ )
+	{
+		ss << ",?";
+	}
+	char szSQL[1024];
+	sprintf(szSQL
+			, "select `id`,`idx`,`level`,`func`,`ns`,`updatetime`,`timeout`,`data` FROM `TASK` where `func` in (%s) and `status` = 0 order by `level` desc"
+			, ss.str().c_str());
+	std::vector<MySQLPreparedStatement::Field> fields;
+	for (int i = 0;i < num_func;i++)
+	{
+		fields.push_back(MySQLPreparedStatement::Field(MYSQL_TYPE_VARCHAR,255));
+	}
+	
+	Ptr<MySQLPreparedStatement> ptrStatement = 
+		MySQLPreparedStatement::Create(this,szSQL,fields);
+	if(NULL == ptrStatement)
+		return NULL;
+	for (int i = 0;i < num_func;i++)
+	{
+		ptrStatement->SetString(i,Unicode2Utf8(funcNames[i]).c_str());
+	}
+	
+
+	if(!ptrStatement->Excute())
+		return NULL;
+	RuntimeTask* pTask = NULL;
+	while(ptrStatement->Fetch())
+	{
+		int id = ptrStatement->GetInt(0);
+		int idx = ptrStatement->GetInt(1);
+		int level = ptrStatement->GetInt(2);
+		const char* pszFunc = ptrStatement->GetString(3);
+		const char* pszNS = ptrStatement->GetString(4);
+		int updatetime = ptrStatement->GetInt(5);
+		int timeout = ptrStatement->GetInt(6);
+		const void* pBuffer = NULL;
+		unsigned int nBufferLen = 0;
+		ptrStatement->GetValue(7,&pBuffer,&nBufferLen);
+		if(updatetime + timeout > nowTimeSecond)
+			continue;
+		pTask = RuntimeTask::Create();
+		pTask->SetTaskID(id);
+		pTask->SetIDX(++idx);
+		pTask->SetFunctionName(Utf82Unicode(pszFunc));
+		pTask->SetNamespace(Utf82Unicode(pszNS));
+		pTask->SetTaskLevel(level);
+		pTask->SetTimeOut(timeout);
+		pTask->SetUpdateTime(nowTimeSecond);
+		pTask->SetData((const unsigned char*)pBuffer,nBufferLen);
+		break;
+	}
+	ptrStatement = NULL;
+	if(pTask)
+	{
+		char pszNameBuffer[128] = {0};  
+		gethostname(pszNameBuffer,128);
+		//获得本地IP地址  
+		struct hostent* pHost;  
+		pHost=gethostbyname(pszNameBuffer);//pHost返回的是指向主机的列表  
+		std::string strIP;
+		for (int i=0;pHost!=NULL&&pHost->h_addr_list[i]!=NULL;i++)  
+		{  
+			LPCSTR psz = inet_ntoa(*(struct in_addr *)pHost->h_addr_list[i]);//得到指向ip的psz变量  
+			strIP += psz;  
+			break;
+		}  
+
+		const char*  pszSQL = "UPDATE `TASK` SET `idx` = ?,`updatetime`=?,`host`=?,`ip`=?,`pid`=? where id = ?";
+		fields.clear();
+		fields.push_back(MySQLPreparedStatement::Field(MYSQL_TYPE_LONG,sizeof(int)));
+		fields.push_back(MySQLPreparedStatement::Field(MYSQL_TYPE_LONG,sizeof(int)));
+		fields.push_back(MySQLPreparedStatement::Field(MYSQL_TYPE_VARCHAR,255));
+		fields.push_back(MySQLPreparedStatement::Field(MYSQL_TYPE_VARCHAR,255));
+		fields.push_back(MySQLPreparedStatement::Field(MYSQL_TYPE_LONG,sizeof(int)));
+		fields.push_back(MySQLPreparedStatement::Field(MYSQL_TYPE_LONG,sizeof(int)));
+		ptrStatement = 
+			MySQLPreparedStatement::Create(this,pszSQL,fields);
+		if(NULL == ptrStatement)
+		{
+			pTask->Release();
+			return NULL;
+		}
+		ptrStatement->SetInt(0,pTask->GetIDX());
+		ptrStatement->SetInt(1,nowTimeSecond);
+		ptrStatement->SetString(2,pszNameBuffer);
+		ptrStatement->SetString(3,strIP.c_str());
+		ptrStatement->SetInt(4,getpid());
+		ptrStatement->SetInt(5,pTask->GetTaskID());
+		if(!ptrStatement->Excute())
+		{
+			pTask->Release();
+			return NULL;
+		}
+	}
+	transHelper.Commit();
+	return pTask;
+}
+
 Task* MySQLConnection::GetTask(const std::wstring& strFunctionName)
 {
 	if(!m_bOpen)
@@ -1034,3 +1161,5 @@ bool MySQLConnection::TranStarted() const
 {
 	return m_IsTranStarted;
 }
+
+NS_END

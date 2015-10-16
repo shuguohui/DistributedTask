@@ -1,4 +1,5 @@
 #include "ConnectionInfo.h"
+NS_TASK
 ConnectionInfo::ConnectionInfo()
 	: m_timeout(0)
 {
@@ -109,3 +110,5 @@ void ConnectionInfo::SetTimeout(int nTimeout)
 {
 	m_timeout = nTimeout;
 }
+
+NS_END

@@ -5,6 +5,7 @@
 #include <Core/ConnectionInfo.h>
 #include <Core/Ptr.h>
 #include <string>
+NS_TASK
 class GVI_API_TASK Manager : public IDisposable
 {
 protected:
@@ -28,5 +29,5 @@ private:
 	Ptr<ConnectionInfo> m_conn;
 
 };
-
+NS_END
 #endif

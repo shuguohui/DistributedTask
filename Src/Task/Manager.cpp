@@ -1,6 +1,7 @@
 #include "Manager.h"
 #include <Provider/IProvider/IConnection.h>
 #include <Provider/MySQL/MySQLConnection.h>
+NS_TASK
 Manager::Manager()
 {
 
@@ -29,3 +30,4 @@ bool Manager::DropRepository()
 	Ptr<IConnection> ptrConn = MySQLConnection::Create();
 	return ptrConn->DropRepository(m_conn);
 }
+NS_END

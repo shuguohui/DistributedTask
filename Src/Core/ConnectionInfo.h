@@ -2,6 +2,7 @@
 #define _CONNECTIONINFO_H_
 #include "IDisposable.h"
 #include <string>
+NS_TASK
 class GVI_API_TASK_CORE ConnectionInfo : public IDisposable
 {
 public:
@@ -67,5 +68,5 @@ private:
 	unsigned int m_timeout;
 	ConnectionType m_Type;
 };
-
+NS_END
 #endif

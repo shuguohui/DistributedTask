@@ -4,7 +4,7 @@
 #ifdef _WIN32
 #pragma once
 #endif
-
+NS_TASK
 class IDisposable
 {
 protected:
@@ -44,7 +44,7 @@ private:
     int m_refCount;
     static bool m_globalThreadLockingEnabled;
 };
-
+NS_END
 
 #define SAFE_RELEASE(x) {if (x) (x)->Release(); (x) = NULL;}
 #define SAFE_ADDREF(x)  ((x != NULL) ? (x)->AddRef(), (x) : (NULL))

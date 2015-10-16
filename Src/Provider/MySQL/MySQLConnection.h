@@ -7,6 +7,7 @@
 #include <string>
 
 #define  MAX_BLOB_LEN 16 * 1024 * 1024
+NS_TASK
 class GVI_API_TASK_PROVIDER MySQLConnection : public IConnection
 {
 protected:
@@ -27,6 +28,8 @@ public:
 	virtual  bool DropRepository(const ConnectionInfo* pConn);
 
 	virtual Task* GetTask(const std::wstring& strFunctionName);
+
+	virtual Task* GetTask(const std::vector<std::wstring>& funcNames);
 
 	virtual void FinishTask(const Task* pTask);
 
@@ -106,4 +109,5 @@ private:
 	int   m_tempBufferLen;
 
 };
+NS_END
 #endif

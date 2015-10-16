@@ -1,5 +1,5 @@
 #include "Task.h"
-
+NS_TASK
 Task::Task()
 	:m_data(NULL)
 	, m_dataLen(0)
@@ -83,3 +83,5 @@ void Task::SetTaskLevel(unsigned int nLevel)
 {
 	m_level = nLevel;
 }
+
+NS_END
