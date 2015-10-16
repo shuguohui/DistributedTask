@@ -19,33 +19,23 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\Core\ConnectionInfo.cpp" />
-    <ClCompile Include="..\..\Core\dllmain.cpp" />
-    <ClCompile Include="..\..\Core\Exception.cpp" />
-    <ClCompile Include="..\..\Core\IDisposable.cpp" />
-    <ClCompile Include="..\..\Core\RuntimeTask.cpp" />
-    <ClCompile Include="..\..\Core\stdafx.cpp" />
-    <ClCompile Include="..\..\Core\Task.cpp" />
-    <ClCompile Include="..\..\Core\utf8_.cpp" />
+    <ClCompile Include="..\..\Task\Client.cpp" />
+    <ClCompile Include="..\..\Task\Function.cpp" />
+    <ClCompile Include="..\..\Task\Manager.cpp" />
+    <ClCompile Include="..\..\Task\Worker.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\Core\ReadMe.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\..\Core\ConnectionInfo.h" />
-    <ClInclude Include="..\..\Core\Exception.h" />
-    <ClInclude Include="..\..\Core\IDisposable.h" />
-    <ClInclude Include="..\..\Core\Ptr.h" />
-    <ClInclude Include="..\..\Core\RuntimeTask.h" />
-    <ClInclude Include="..\..\Core\stdafx.h" />
-    <ClInclude Include="..\..\Core\targetver.h" />
-    <ClInclude Include="..\..\Core\Task.h" />
-    <ClInclude Include="..\..\Core\utf8_.h" />
+    <ClInclude Include="..\..\Task\Client.h" />
+    <ClInclude Include="..\..\Task\Function.h" />
+    <ClInclude Include="..\..\Task\Manager.h" />
+    <ClInclude Include="..\..\Task\stdafx.h" />
+    <ClInclude Include="..\..\Task\targetver.h" />
+    <ClInclude Include="..\..\Task\Worker.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{5D9B1A3A-4A50-419A-863B-78882A7B2DB3}</ProjectGuid>
+    <ProjectGuid>{5D9B1A3A-4A50-419A-863B-78882A7B21B3}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>Core</RootNamespace>
+    <RootNamespace>Task</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -89,39 +79,41 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>..\..\..\Bin\$(Configuration)\$(Platform)</OutDir>
-    <IntDir>..\..\..\Obj\$(Configuration)\$(Platform)\CORE</IntDir>
+    <IntDir>..\..\..\Obj\$(Configuration)\$(Platform)\Task</IntDir>
     <TargetName>$(ProjectName)</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>..\..\..\Bin\$(Configuration)\$(Platform)</OutDir>
-    <IntDir>..\..\..\Obj\$(Configuration)\$(Platform)\CORE</IntDir>
+    <IntDir>..\..\..\Obj\$(Configuration)\$(Platform)\Task</IntDir>
     <TargetName>$(ProjectName)</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>..\..\..\Bin\$(Configuration)\$(Platform)</OutDir>
-    <IntDir>..\..\..\Obj\$(Configuration)\$(Platform)\CORE</IntDir>
+    <IntDir>..\..\..\Obj\$(Configuration)\$(Platform)\Task</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>..\..\..\Bin\$(Configuration)\$(Platform)</OutDir>
-    <IntDir>..\..\..\Obj\$(Configuration)\$(Platform)\CORE</IntDir>
+    <IntDir>..\..\..\Obj\$(Configuration)\$(Platform)\Task</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;CORE_EXPORTS;EXP_GVI_TASK_CORE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;CORE_EXPORTS;EXP_GVI_TASK;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>../../</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <ImportLibrary>..\..\..\Lib\$(Configuration)\$(Platform)\TASKCORED.lib</ImportLibrary>
-      <OutputFile>$(OutDir)TASKCORED$(TargetExt)</OutputFile>
-      <ModuleDefinitionFile>Cored.def</ModuleDefinitionFile>
+      <ImportLibrary>..\..\..\Lib\$(Configuration)\$(Platform)\TaskD.lib</ImportLibrary>
+      <OutputFile>$(OutDir)TaskD$(TargetExt)</OutputFile>
+      <ModuleDefinitionFile>Taskd.def</ModuleDefinitionFile>
+      <AdditionalLibraryDirectories>../../../Lib/$(Configuration)/$(Platform)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>TASKCORED.lib;TaskMySQLD.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -129,15 +121,17 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;CORE_EXPORTS;EXP_GVI_TASK_CORE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;CORE_EXPORTS;EXP_GVI_TASK;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>../../</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <ImportLibrary>..\..\..\Lib\$(Configuration)\$(Platform)\TASKCORED.lib</ImportLibrary>
-      <OutputFile>$(OutDir)TASKCORED$(TargetExt)</OutputFile>
-      <ModuleDefinitionFile>Cored.def</ModuleDefinitionFile>
+      <ImportLibrary>..\..\..\Lib\$(Configuration)\$(Platform)\TaskD.lib</ImportLibrary>
+      <OutputFile>$(OutDir)TaskD$(TargetExt)</OutputFile>
+      <ModuleDefinitionFile>Taskd.def</ModuleDefinitionFile>
+      <AdditionalLibraryDirectories>../../../Lib/$(Configuration)/$(Platform)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>TASKCORED.lib;TaskMySQLD.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -147,7 +141,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;CORE_EXPORTS;EXP_GVI_TASK_CORE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;CORE_EXPORTS;EXP_GVI_TASK;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>../../</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -155,9 +149,11 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <ImportLibrary>..\..\..\Lib\$(Configuration)\$(Platform)\TASKCORE.lib</ImportLibrary>
-      <ModuleDefinitionFile>Core.def</ModuleDefinitionFile>
-      <OutputFile>$(OutDir)TASKCORE$(TargetExt)</OutputFile>
+      <ImportLibrary>..\..\..\Lib\$(Configuration)\$(Platform)\Task.lib</ImportLibrary>
+      <ModuleDefinitionFile>Task.def</ModuleDefinitionFile>
+      <OutputFile>$(OutDir)Task$(TargetExt)</OutputFile>
+      <AdditionalLibraryDirectories>../../../Lib/$(Configuration)/$(Platform)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>TASKCORE.lib;TaskMySQL.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -167,7 +163,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;CORE_EXPORTS;EXP_GVI_TASK_CORE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;CORE_EXPORTS;EXP_GVI_TASK;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>../../</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -175,9 +171,11 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <ImportLibrary>..\..\..\Lib\$(Configuration)\$(Platform)\TASKCORE.lib</ImportLibrary>
-      <ModuleDefinitionFile>Core.def</ModuleDefinitionFile>
-      <OutputFile>$(OutDir)TASKCORE$(TargetExt)</OutputFile>
+      <ImportLibrary>..\..\..\Lib\$(Configuration)\$(Platform)\Task.lib</ImportLibrary>
+      <ModuleDefinitionFile>Task.def</ModuleDefinitionFile>
+      <OutputFile>$(OutDir)Task$(TargetExt)</OutputFile>
+      <AdditionalLibraryDirectories>../../../Lib/$(Configuration)/$(Platform)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>TASKCORE.lib;TaskMySQL.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

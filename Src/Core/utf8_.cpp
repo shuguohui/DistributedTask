@@ -603,7 +603,7 @@ int ut_utf8_from_unicode(const wchar_t* Wtext, size_t in_size, char* str_out, in
     return EncodeUTF8(Wtext, in_size * sizeof(wchar_t), str_out, out_size);
 }
 
-extern GVI_API_TASK
+extern GVI_API_TASK_CORE
 	std::string Unicode2Utf8(const std::wstring& uniStr)
 {
 	size_t utf8Len = uniStr.length() * 6 + 1;
@@ -625,7 +625,7 @@ extern GVI_API_TASK
 	return strRet;
 }
 
-extern GVI_API_TASK
+extern GVI_API_TASK_CORE
 	std::wstring Utf82Unicode(const std::string& utf8Str)
 {
 	size_t wideLen = utf8Str.length() + 1;

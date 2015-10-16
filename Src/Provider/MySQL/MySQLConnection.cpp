@@ -4,6 +4,7 @@
 #include <Core/RuntimeTask.h>
 #include <Core/utf8_.h>
 #include <vector>
+#include <process.h>
 #include <my_global.h>
 #include <mysql.h>
 #include <errmsg.h>
@@ -13,6 +14,7 @@ MySQLConnection::MySQLConnection()
 	, m_IsTranStarted(false)
 	, m_isolation(ReadCommitted)
 	, m_tempBuffer(NULL)
+	, m_tempBufferLen(0)
 {
 
 }
@@ -181,6 +183,7 @@ bool MySQLConnection::CreateRepository(const ConnectionInfo* pConn)
 		timeout INT NOT NULL,\n\
 		host varchar(255),\n\
 		ip varchar(255),\n\
+		pid INT,\n\
 		createDatetime timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,\n\
 		finishDatetime timestamp,\n\
 		status INT NOT NULL DEFAULT 0,\n\
@@ -364,12 +367,13 @@ Task* MySQLConnection::GetTask(const std::wstring& strFunctionName)
 			break;
 		}  
 
-		pszSQL = "UPDATE `TASK` SET `idx` = ?,`updatetime`=?,`host`=?,`ip`=? where id = ?";
+		pszSQL = "UPDATE `TASK` SET `idx` = ?,`updatetime`=?,`host`=?,`ip`=?,`pid`=? where id = ?";
 		fields.clear();
 		fields.push_back(MySQLPreparedStatement::Field(MYSQL_TYPE_LONG,sizeof(int)));
 		fields.push_back(MySQLPreparedStatement::Field(MYSQL_TYPE_LONG,sizeof(int)));
 		fields.push_back(MySQLPreparedStatement::Field(MYSQL_TYPE_VARCHAR,255));
 		fields.push_back(MySQLPreparedStatement::Field(MYSQL_TYPE_VARCHAR,255));
+		fields.push_back(MySQLPreparedStatement::Field(MYSQL_TYPE_LONG,sizeof(int)));
 		fields.push_back(MySQLPreparedStatement::Field(MYSQL_TYPE_LONG,sizeof(int)));
 		ptrStatement = 
 			MySQLPreparedStatement::Create(this,pszSQL,fields);
@@ -382,8 +386,8 @@ Task* MySQLConnection::GetTask(const std::wstring& strFunctionName)
 		ptrStatement->SetInt(1,nowTimeSecond);
 		ptrStatement->SetString(2,pszNameBuffer);
 		ptrStatement->SetString(3,strIP.c_str());
-		ptrStatement->SetInt(4,pTask->GetTaskID());
-
+		ptrStatement->SetInt(4,getpid());
+		ptrStatement->SetInt(5,pTask->GetTaskID());
 		if(!ptrStatement->Excute())
 		{
 			pTask->Release();
@@ -393,7 +397,56 @@ Task* MySQLConnection::GetTask(const std::wstring& strFunctionName)
 	transHelper.Commit();
 	return pTask;
 }
+void MySQLConnection::Abort(const Task* pTask)
+{
+	if(!m_bOpen)
+		return;
 
+	if(!Ping())
+		return;
+
+	if(NULL == pTask)
+		return;
+
+	const RuntimeTask* pRuntimeTask = dynamic_cast<const RuntimeTask*>(pTask);
+	if(NULL == pRuntimeTask)
+		return;
+
+	TransactionGurad transHelper(this);
+	if(!Lock())
+		return;
+
+	const char* pszSQL = "select idx from `TASK` where id = ?";
+	std::vector<MySQLPreparedStatement::Field> fields;
+	fields.push_back(MySQLPreparedStatement::Field(MYSQL_TYPE_LONG,sizeof(int)));
+	Ptr<MySQLPreparedStatement>  ptrStatement = 
+		MySQLPreparedStatement::Create(this,pszSQL,fields);
+	if(NULL == ptrStatement)
+		return ;
+	ptrStatement->SetInt(0,pRuntimeTask->GetTaskID());
+
+	if(!ptrStatement->Excute())
+		return;
+	if(!ptrStatement->Fetch())
+		return;
+	//检查idx是否一致不一致说明超时等原因被其他人拿走了。
+	int nIdx = ptrStatement->GetInt(0);
+	if(nIdx != pRuntimeTask->GetIDX())
+		return;
+	ptrStatement = NULL;
+	//更新Task的状态
+	pszSQL = "UPDATE `TASK` SET updatetime = 0,`STATUS` = 0 where id=?";
+	ptrStatement = 
+		MySQLPreparedStatement::Create(this,pszSQL,fields);
+	if(NULL == ptrStatement)
+		return ;
+	ptrStatement->SetInt(0,pRuntimeTask->GetTaskID());
+
+	if(!ptrStatement->Excute())
+		return;
+	ptrStatement = NULL;
+	transHelper.Commit();
+}
 void MySQLConnection::FinishTask(const Task* pTask)
 {
 	if(!m_bOpen)
@@ -767,6 +820,11 @@ bool MySQLConnection::ReadData(const std::wstring& strNameSpace
 	const void* p = NULL;
 	nBufferLen = 0;
 	ptrStatement->GetValue(0,(const void**)&p,(unsigned int*)&nBufferLen);
+	if(nBufferLen > m_tempBufferLen)
+	{
+		m_tempBufferLen = nBufferLen;
+		ResizeMemory(&m_tempBuffer,m_tempBufferLen);
+	}
 	memcpy(m_tempBuffer,p,nBufferLen);
 	*pBuffer = m_tempBuffer;
 
@@ -853,7 +911,10 @@ bool MySQLConnection::Open(const ConnectionInfo* pConnInfo)
 
 	m_bOpen = true;
 	m_connInfo = pConnInfo->Clone();
-	m_tempBuffer = malloc(MAX_BLOB_LEN);
+	
+	m_tempBufferLen = 1024 * 1024;
+	m_tempBuffer = malloc(m_tempBufferLen);
+
 	return true;
 }
 

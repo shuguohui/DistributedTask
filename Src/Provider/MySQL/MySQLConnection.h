@@ -30,6 +30,8 @@ public:
 
 	virtual void FinishTask(const Task* pTask);
 
+	virtual void Abort(const Task* pTask);
+
 	virtual void CreateTasks(const std::vector<Ptr<Task> >& tasks
 							, const std::wstring& strNameSapce);
 
@@ -85,6 +87,15 @@ private:
 	const char* GetTransactionIsolationString(TransactionIsolation isolate);
 
 	bool Lock();
+
+	inline void ResizeMemory( void** ppv, size_t size )
+	{
+		void** ppb = (void**)ppv;
+		void* pbResize;
+		pbResize = realloc(*ppb, size);
+		if( pbResize != NULL )
+			*ppb = pbResize;
+	}
 private:
 	void* m_mysql;
 	bool m_bOpen;
@@ -92,6 +103,7 @@ private:
 	bool m_IsTranStarted;
 	Ptr<ConnectionInfo> m_connInfo;
 	void* m_tempBuffer;
+	int   m_tempBufferLen;
 
 };
 #endif

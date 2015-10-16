@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "targetver.h"
+#include <Task/targetver.h>
 
 #define WIN32_LEAN_AND_MEAN             //  从 Windows 头文件中排除极少使用的信息
 // Windows 头文件:
@@ -13,10 +13,10 @@
 
 
 #ifdef _WIN32
-#ifdef EXP_GVI_TASK_CORE
-#    define GVI_API_TASK_CORE __declspec(dllexport)
+#ifdef EXP_GVI_TASK
+#    define GVI_API_TASK __declspec(dllexport)
 #else
-#    define GVI_API_TASK_CORE __declspec(dllimport)
+#    define GVI_API_TASK __declspec(dllimport)
 #endif
 #else
 #define GVI_API_TASK

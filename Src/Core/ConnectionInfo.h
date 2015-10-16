@@ -2,7 +2,7 @@
 #define _CONNECTIONINFO_H_
 #include "IDisposable.h"
 #include <string>
-class GVI_API_TASK ConnectionInfo : public IDisposable
+class GVI_API_TASK_CORE ConnectionInfo : public IDisposable
 {
 public:
 	enum ConnectionType

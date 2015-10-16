@@ -31,6 +31,8 @@ public:
 
 	virtual void FinishTask(const Task* pTask) = 0;
 
+	virtual void Abort(const Task* pTask) = 0;
+
 	virtual void CreateTasks(const std::vector<Ptr<Task> >& tasks
 							, const std::wstring& strNameSapce) = 0;
 

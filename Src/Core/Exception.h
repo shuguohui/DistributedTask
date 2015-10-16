@@ -2,7 +2,7 @@
 #define _EXCEPTION_H_
 #include "stdafx.h"
 #include <string>
-class GVI_API_TASK Exception
+class GVI_API_TASK_CORE Exception
 {
 private:
 	Exception();

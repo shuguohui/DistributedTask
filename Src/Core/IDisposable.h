@@ -9,33 +9,33 @@ class IDisposable
 {
 protected:
 
-    GVI_API_TASK IDisposable() : m_refCount(0), m_objectThreadLockingEnabled(false) {};
+    GVI_API_TASK_CORE IDisposable() : m_refCount(0), m_objectThreadLockingEnabled(false) {};
 
     
-    GVI_API_TASK virtual ~IDisposable() {};
+    GVI_API_TASK_CORE virtual ~IDisposable() {};
 
 
-    GVI_API_TASK virtual void Dispose() = 0;
+    GVI_API_TASK_CORE virtual void Dispose() = 0;
 	
 public:
 
-    GVI_API_TASK static void EnableGlobalThreadLocking(bool enable) { m_globalThreadLockingEnabled = enable; }
+    GVI_API_TASK_CORE static void EnableGlobalThreadLocking(bool enable) { m_globalThreadLockingEnabled = enable; }
 
  
-    GVI_API_TASK static bool GetGlobalThreadLockingFlag() { return m_globalThreadLockingEnabled; }
+    GVI_API_TASK_CORE static bool GetGlobalThreadLockingFlag() { return m_globalThreadLockingEnabled; }
 
 public:
 
-    GVI_API_TASK virtual int AddRef();
+    GVI_API_TASK_CORE virtual int AddRef();
 
  
-    GVI_API_TASK virtual int Release();
+    GVI_API_TASK_CORE virtual int Release();
 
 
-    GVI_API_TASK virtual int GetRefCount() { return m_refCount; }
+    GVI_API_TASK_CORE virtual int GetRefCount() { return m_refCount; }
 
 
-    GVI_API_TASK virtual void EnableObjectThreadLocking(bool enable) { m_objectThreadLockingEnabled = enable; }
+    GVI_API_TASK_CORE virtual void EnableObjectThreadLocking(bool enable) { m_objectThreadLockingEnabled = enable; }
 
 protected:
     bool m_objectThreadLockingEnabled;

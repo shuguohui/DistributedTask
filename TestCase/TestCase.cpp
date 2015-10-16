@@ -23,6 +23,7 @@ int main()
 	Ptr<MySQLConnection> ptrConn = MySQLConnection::Create();
 	bool b = ptrConn->DropRepository(ptrConnInfo);
 	b = ptrConn->CreateRepository(ptrConnInfo);
+	return 0;
 
 	b = ptrConn->Open(ptrConnInfo);
 	b = ptrConn->CreateNameSpace(L"test");

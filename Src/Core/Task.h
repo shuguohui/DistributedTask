@@ -2,7 +2,7 @@
 #define _TASK_H_
 #include "IDisposable.h"
 #include <string>
-class GVI_API_TASK Task : public IDisposable
+class GVI_API_TASK_CORE Task : public IDisposable
 {
 protected:
 	Task();

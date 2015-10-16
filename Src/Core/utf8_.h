@@ -27,10 +27,10 @@ int ut_utf8_to_unicode(const char* str_in, size_t in_size, wchar_t* Wtext, size_
 //returns -1 if invalid character encountered
 int ut_utf8_from_unicode(const wchar_t* Wtext, size_t in_size, char* str_out, int out_size);
 
-extern GVI_API_TASK
+extern GVI_API_TASK_CORE
 std::string Unicode2Utf8(const std::wstring& uniStr);
 
-extern GVI_API_TASK
+extern GVI_API_TASK_CORE
 std::wstring Utf82Unicode(const std::string& utf8Str);
 
 
