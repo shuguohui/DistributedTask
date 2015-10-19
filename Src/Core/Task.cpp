@@ -3,7 +3,7 @@ NS_TASK
 Task::Task()
 	:m_data(NULL)
 	, m_dataLen(0)
-	, m_timeout(86400)
+	, m_timeout(60)
 	, m_level(0)
 {
 
@@ -14,7 +14,10 @@ Task::~Task()
 	if(m_data)
 		free(m_data);
 }
-
+int Task::GetTaskID() const
+{
+	return 0;
+}
 Task* Task::Create()
 {
 	return new Task;

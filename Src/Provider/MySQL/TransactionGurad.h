@@ -4,7 +4,7 @@
 #include <Provider/IProvider/stdafx.h>
 #include <string>
 NS_TASK
-class  TransactionGurad
+class  GVI_API_TASK_PROVIDER TransactionGurad
 {
 public:
 	TransactionGurad(IConnection* pConn);

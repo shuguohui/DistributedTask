@@ -18,6 +18,8 @@ protected:
 public:
 	static Task* Create();
 
+	virtual int GetTaskID() const;
+
 	const std::wstring& GetFunctionName() const;
 
 	void SetFunctionName(const std::wstring& strFuncName);
