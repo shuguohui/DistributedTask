@@ -66,6 +66,7 @@ int main()
 	Ptr<Worker> ptrWorker = Worker::Create(ptrConnInfo);
 	Ptr<Function> ptrFunction = Function::Create(L"test",&CallBack);
 	ptrWorker->RegisterFunction(ptrFunction);
+	ptrWorker->SetIdentification(L"my");
 	ptrWorker->Run();
 	/*bool b = ptrConn->Open(ptrConnInfo);
 	if(!b)

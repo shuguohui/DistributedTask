@@ -47,8 +47,8 @@ int main()
 
 	ptrConn->CreateTasks(tasks,_T("test"));
 
-	Ptr<Task> ptrTask = ptrConn->GetTask(L"test");
-	ptrConn->FinishTask(ptrTask);
+	/*Ptr<Task> ptrTask = ptrConn->GetTask(L"test");
+	ptrConn->FinishTask(ptrTask);*/
 
 	int nFinish;
 	int nTotal;

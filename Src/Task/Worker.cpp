@@ -45,6 +45,11 @@ void Worker::UnRegisterFunction(const std::wstring& strFuncName)
 		m_regiterFuncs.erase(iter);
 }
 
+void Worker::SetIdentification(const std::wstring& strIdentification)
+{
+	m_conn->SetIdentification(strIdentification);
+}
+
 void Worker::Run()
 {
 	m_bRunning = true;

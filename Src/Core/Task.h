@@ -36,9 +36,13 @@ public:
 
 	void SetTaskLevel(unsigned int nLevel);
 
+	bool IsSupportOMP() const;
+
+	void SetSupportOMP(bool bSupport);
+
 	void SetData(const unsigned char* pBuffer,unsigned int nBufferLen);
 
-	const unsigned char* GetData(unsigned int& nBufferLen);
+	const unsigned char* GetData(unsigned int& nBufferLen) const;
 private:
 	std::wstring m_functionName;
 	std::wstring m_namespace;
@@ -46,6 +50,7 @@ private:
 	unsigned int m_dataLen;
 	unsigned char* m_data;
 	unsigned int m_timeout;
+	bool m_SupportOMP;
 };
 NS_END
 #endif

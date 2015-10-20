@@ -5,6 +5,7 @@ Task::Task()
 	, m_dataLen(0)
 	, m_timeout(60)
 	, m_level(0)
+	, m_SupportOMP(false)
 {
 
 }
@@ -71,7 +72,7 @@ void Task::SetData(const unsigned char* pBuffer,unsigned int nBufferLen)
 	}
 }
 
-const unsigned char* Task::GetData(unsigned int& nBufferLen)
+const unsigned char* Task::GetData(unsigned int& nBufferLen) const
 {
 	nBufferLen = m_dataLen;
 	return m_data;
@@ -87,4 +88,13 @@ void Task::SetTaskLevel(unsigned int nLevel)
 	m_level = nLevel;
 }
 
+bool Task::IsSupportOMP() const
+{
+	return m_SupportOMP;
+}
+
+void Task::SetSupportOMP(bool bSupport)
+{
+	m_SupportOMP = bSupport;
+}
 NS_END

@@ -184,8 +184,10 @@ bool MySQLConnection::CreateRepository(const ConnectionInfo* pConn)
 		ns varchar(255) NOT NULL,\n\
 		updatetime INT NOT NULL DEFAULT 0,\n\
 		timeout INT NOT NULL,\n\
+		supportOMP INT NOT NULL,\n\
 		host varchar(255),\n\
 		ip varchar(255),\n\
+		identification varchar(255) NOT NULL DEFAULT 'NONE',\n\
 		pid INT,\n\
 		createDatetime timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,\n\
 		finishDatetime timestamp,\n\
@@ -195,6 +197,7 @@ bool MySQLConnection::CreateRepository(const ConnectionInfo* pConn)
 		KEY TASK_LEVEL(level) ,\n\
 		KEY TASK_FUNC(func) ,\n\
 		KEY TASK_NS(ns) ,\n\
+		KEY TASK_IDENTITY(identification), \n\
 		KEY TASK_STATUS(status) \n\
 		) ENGINE=INNODB DEFAULT CHARSET=UTF8;";
 	errorid = mysql_real_query(&mysql,pszTableSchema,strlen(pszTableSchema));
@@ -328,13 +331,33 @@ Task* MySQLConnection::GetTask(const std::vector<std::wstring>& funcNames)
 		ss << ",?";
 	}
 	char szSQL[1024];
-	sprintf(szSQL
-			, "select `id`,`idx`,`level`,`func`,`ns`,`updatetime`,`timeout`,`data` FROM `TASK` where `func` in (%s) and `status` = 0 order by `level` desc"
+	if(m_identity.empty())
+	{
+		sprintf(szSQL
+			, "select `id`,`idx`,`level`,`supportOMP`,`identification`,`func`,`ns`,`updatetime`,`timeout`,`data` FROM `TASK` where `func` in (%s) and `status` = 0 order by `level` desc"
 			, ss.str().c_str());
+	}
+	else
+	{
+		sprintf(szSQL
+			, "select `id`,`idx`,`level`,`supportOMP`,`identification`,`func`,`ns`,`updatetime`,`timeout`,`data` FROM `TASK` where `func` in (%s) and identification = ? and `status` = 0 \
+			   UNION ALL \
+			   select `id`,`idx`,`level`,`supportOMP`,`identification`,`func`,`ns`,`updatetime`,`timeout`,`data` FROM `TASK` where `func` in (%s)  and `status` = 0 "
+			, ss.str().c_str()
+			, ss.str().c_str());
+	}
 	std::vector<MySQLPreparedStatement::Field> fields;
 	for (int i = 0;i < num_func;i++)
 	{
 		fields.push_back(MySQLPreparedStatement::Field(MYSQL_TYPE_VARCHAR,255));
+	}
+	if(!m_identity.empty())
+	{
+		fields.push_back(MySQLPreparedStatement::Field(MYSQL_TYPE_VARCHAR,255));
+		for (int i = 0;i < num_func;i++)
+		{
+			fields.push_back(MySQLPreparedStatement::Field(MYSQL_TYPE_VARCHAR,255));
+		}
 	}
 	
 	Ptr<MySQLPreparedStatement> ptrStatement = 
@@ -345,24 +368,34 @@ Task* MySQLConnection::GetTask(const std::vector<std::wstring>& funcNames)
 	{
 		ptrStatement->SetString(i,Unicode2Utf8(funcNames[i]).c_str());
 	}
-	
+	if(!m_identity.empty())
+	{
+		ptrStatement->SetString(num_func,Unicode2Utf8(m_identity).c_str());
+		for (int i = 0;i < num_func;i++)
+		{
+			ptrStatement->SetString(num_func + 1 + i,Unicode2Utf8(funcNames[i]).c_str());
+		}
+	}
 
 	if(!ptrStatement->Excute())
 		return NULL;
 	RuntimeTask* pTask = NULL;
+	std::string strIdentity = Unicode2Utf8(m_identity);
 	while(ptrStatement->Fetch())
 	{
 		int id = ptrStatement->GetInt(0);
 		int idx = ptrStatement->GetInt(1);
 		int level = ptrStatement->GetInt(2);
-		const char* pszFunc = ptrStatement->GetString(3);
-		const char* pszNS = ptrStatement->GetString(4);
-		int updatetime = ptrStatement->GetInt(5);
-		int timeout = ptrStatement->GetInt(6);
+		int supportOMP = ptrStatement->GetInt(3);
+		const char* pszIdent = ptrStatement->GetString(4);
+		const char* pszFunc = ptrStatement->GetString(5);
+		const char* pszNS = ptrStatement->GetString(6);
+		int updatetime = ptrStatement->GetInt(7);
+		int timeout = ptrStatement->GetInt(8);
 		const void* pBuffer = NULL;
 		unsigned int nBufferLen = 0;
-		ptrStatement->GetValue(7,&pBuffer,&nBufferLen);
-		if(updatetime + timeout > nowTimeSecond)
+		ptrStatement->GetValue(9,&pBuffer,&nBufferLen);
+		if(stricmp(pszIdent,strIdentity.c_str()) && updatetime + timeout > nowTimeSecond)
 			continue;
 		pTask = RuntimeTask::Create();
 		pTask->SetTaskID(id);
@@ -373,6 +406,7 @@ Task* MySQLConnection::GetTask(const std::vector<std::wstring>& funcNames)
 		pTask->SetTimeOut(timeout);
 		pTask->SetUpdateTime(nowTimeSecond);
 		pTask->SetData((const unsigned char*)pBuffer,nBufferLen);
+		pTask->SetSupportOMP(supportOMP == 1);
 		break;
 	}
 	ptrStatement = NULL;
@@ -391,13 +425,14 @@ Task* MySQLConnection::GetTask(const std::vector<std::wstring>& funcNames)
 			break;
 		}  
 
-		const char*  pszSQL = "UPDATE `TASK` SET `idx` = ?,`updatetime`=?,`host`=?,`ip`=?,`pid`=? where id = ?";
+		const char*  pszSQL = "UPDATE `TASK` SET `idx` = ?,`updatetime`=?,`host`=?,`ip`=?,`pid`=?,`identification` = ? where id = ?";
 		fields.clear();
 		fields.push_back(MySQLPreparedStatement::Field(MYSQL_TYPE_LONG,sizeof(int)));
 		fields.push_back(MySQLPreparedStatement::Field(MYSQL_TYPE_LONG,sizeof(int)));
 		fields.push_back(MySQLPreparedStatement::Field(MYSQL_TYPE_VARCHAR,255));
 		fields.push_back(MySQLPreparedStatement::Field(MYSQL_TYPE_VARCHAR,255));
 		fields.push_back(MySQLPreparedStatement::Field(MYSQL_TYPE_LONG,sizeof(int)));
+		fields.push_back(MySQLPreparedStatement::Field(MYSQL_TYPE_VARCHAR,255));
 		fields.push_back(MySQLPreparedStatement::Field(MYSQL_TYPE_LONG,sizeof(int)));
 		ptrStatement = 
 			MySQLPreparedStatement::Create(this,pszSQL,fields);
@@ -411,7 +446,8 @@ Task* MySQLConnection::GetTask(const std::vector<std::wstring>& funcNames)
 		ptrStatement->SetString(2,pszNameBuffer);
 		ptrStatement->SetString(3,strIP.c_str());
 		ptrStatement->SetInt(4,getpid());
-		ptrStatement->SetInt(5,pTask->GetTaskID());
+		ptrStatement->SetString(5,m_identity.empty() ? "NONE" : strIdentity.c_str());
+		ptrStatement->SetInt(6,pTask->GetTaskID());
 		if(!ptrStatement->Excute())
 		{
 			pTask->Release();
@@ -421,110 +457,112 @@ Task* MySQLConnection::GetTask(const std::vector<std::wstring>& funcNames)
 	transHelper.Commit();
 	return pTask;
 }
-
-Task* MySQLConnection::GetTask(const std::wstring& strFunctionName)
-{
-	if(!m_bOpen)
-		return NULL;
-
-	if(!Ping())
-		return NULL;
-
-	//获取当前时间
-	struct tm nowTime = GetDatabaseTime();
-	int nowTimeSecond = mktime(&nowTime);
-
-	TransactionGurad transHelper(this);
-	if(!Lock())
-		return NULL;
-	
-	//获取任务列表，按照level排序，status = 0的 （for update进行独占锁）
-	//获取一个可用的TASK并更新它的状态等信息
-	//sql
-	const char* pszSQL = 
-		"select `id`,`idx`,`level`,`func`,`ns`,`updatetime`,`timeout`,`data` FROM `TASK` where `func` = ? and `status` = 0 order by `level` desc";
-	std::vector<MySQLPreparedStatement::Field> fields;
-	fields.push_back(MySQLPreparedStatement::Field(MYSQL_TYPE_VARCHAR,255));
-	Ptr<MySQLPreparedStatement> ptrStatement = 
-		MySQLPreparedStatement::Create(this,pszSQL,fields);
-	if(NULL == ptrStatement)
-		return NULL;
-	ptrStatement->SetString(0,Unicode2Utf8(strFunctionName).c_str());
-
-	if(!ptrStatement->Excute())
-		return NULL;
-	RuntimeTask* pTask = NULL;
-	while(ptrStatement->Fetch())
-	{
-		int id = ptrStatement->GetInt(0);
-		int idx = ptrStatement->GetInt(1);
-		int level = ptrStatement->GetInt(2);
-		const char* pszFunc = ptrStatement->GetString(3);
-		const char* pszNS = ptrStatement->GetString(4);
-		int updatetime = ptrStatement->GetInt(5);
-		int timeout = ptrStatement->GetInt(6);
-		const void* pBuffer = NULL;
-		unsigned int nBufferLen = 0;
-		ptrStatement->GetValue(7,&pBuffer,&nBufferLen);
-		if(updatetime + timeout > nowTimeSecond)
-			continue;
-		pTask = RuntimeTask::Create();
-		pTask->SetTaskID(id);
-		pTask->SetIDX(++idx);
-		pTask->SetFunctionName(Utf82Unicode(pszFunc));
-		pTask->SetNamespace(Utf82Unicode(pszNS));
-		pTask->SetTaskLevel(level);
-		pTask->SetTimeOut(timeout);
-		pTask->SetUpdateTime(nowTimeSecond);
-		pTask->SetData((const unsigned char*)pBuffer,nBufferLen);
-		break;
-	}
-	ptrStatement = NULL;
-	if(pTask)
-	{
-		char pszNameBuffer[128] = {0};  
-		gethostname(pszNameBuffer,128);
-		//获得本地IP地址  
-		struct hostent* pHost;  
-		pHost=gethostbyname(pszNameBuffer);//pHost返回的是指向主机的列表  
-		std::string strIP;
-		for (int i=0;pHost!=NULL&&pHost->h_addr_list[i]!=NULL;i++)  
-		{  
-			LPCSTR psz = inet_ntoa(*(struct in_addr *)pHost->h_addr_list[i]);//得到指向ip的psz变量  
-			strIP += psz;  
-			break;
-		}  
-
-		pszSQL = "UPDATE `TASK` SET `idx` = ?,`updatetime`=?,`host`=?,`ip`=?,`pid`=? where id = ?";
-		fields.clear();
-		fields.push_back(MySQLPreparedStatement::Field(MYSQL_TYPE_LONG,sizeof(int)));
-		fields.push_back(MySQLPreparedStatement::Field(MYSQL_TYPE_LONG,sizeof(int)));
-		fields.push_back(MySQLPreparedStatement::Field(MYSQL_TYPE_VARCHAR,255));
-		fields.push_back(MySQLPreparedStatement::Field(MYSQL_TYPE_VARCHAR,255));
-		fields.push_back(MySQLPreparedStatement::Field(MYSQL_TYPE_LONG,sizeof(int)));
-		fields.push_back(MySQLPreparedStatement::Field(MYSQL_TYPE_LONG,sizeof(int)));
-		ptrStatement = 
-			MySQLPreparedStatement::Create(this,pszSQL,fields);
-		if(NULL == ptrStatement)
-		{
-			pTask->Release();
-			return NULL;
-		}
-		ptrStatement->SetInt(0,pTask->GetIDX());
-		ptrStatement->SetInt(1,nowTimeSecond);
-		ptrStatement->SetString(2,pszNameBuffer);
-		ptrStatement->SetString(3,strIP.c_str());
-		ptrStatement->SetInt(4,getpid());
-		ptrStatement->SetInt(5,pTask->GetTaskID());
-		if(!ptrStatement->Excute())
-		{
-			pTask->Release();
-			return NULL;
-		}
-	}
-	transHelper.Commit();
-	return pTask;
-}
+//
+//Task* MySQLConnection::GetTask(const std::wstring& strFunctionName)
+//{
+//	if(!m_bOpen)
+//		return NULL;
+//
+//	if(!Ping())
+//		return NULL;
+//
+//	//获取当前时间
+//	struct tm nowTime = GetDatabaseTime();
+//	int nowTimeSecond = mktime(&nowTime);
+//
+//	TransactionGurad transHelper(this);
+//	if(!Lock())
+//		return NULL;
+//	
+//	//获取任务列表，按照level排序，status = 0的 （for update进行独占锁）
+//	//获取一个可用的TASK并更新它的状态等信息
+//	//sql
+//	const char* pszSQL = 
+//		"select `id`,`idx`,`level`,`supportOMP`,`func`,`ns`,`updatetime`,`timeout`,`data` FROM `TASK` where `func` = ? and `status` = 0 order by `level` desc";
+//	std::vector<MySQLPreparedStatement::Field> fields;
+//	fields.push_back(MySQLPreparedStatement::Field(MYSQL_TYPE_VARCHAR,255));
+//	Ptr<MySQLPreparedStatement> ptrStatement = 
+//		MySQLPreparedStatement::Create(this,pszSQL,fields);
+//	if(NULL == ptrStatement)
+//		return NULL;
+//	ptrStatement->SetString(0,Unicode2Utf8(strFunctionName).c_str());
+//
+//	if(!ptrStatement->Excute())
+//		return NULL;
+//	RuntimeTask* pTask = NULL;
+//	while(ptrStatement->Fetch())
+//	{
+//		int id = ptrStatement->GetInt(0);
+//		int idx = ptrStatement->GetInt(1);
+//		int level = ptrStatement->GetInt(2);
+//		int supportOMP = ptrStatement->GetInt(3);
+//		const char* pszFunc = ptrStatement->GetString(4);
+//		const char* pszNS = ptrStatement->GetString(5);
+//		int updatetime = ptrStatement->GetInt(6);
+//		int timeout = ptrStatement->GetInt(7);
+//		const void* pBuffer = NULL;
+//		unsigned int nBufferLen = 0;
+//		ptrStatement->GetValue(8,&pBuffer,&nBufferLen);
+//		if(updatetime + timeout > nowTimeSecond)
+//			continue;
+//		pTask = RuntimeTask::Create();
+//		pTask->SetTaskID(id);
+//		pTask->SetIDX(++idx);
+//		pTask->SetFunctionName(Utf82Unicode(pszFunc));
+//		pTask->SetNamespace(Utf82Unicode(pszNS));
+//		pTask->SetTaskLevel(level);
+//		pTask->SetTimeOut(timeout);
+//		pTask->SetUpdateTime(nowTimeSecond);
+//		pTask->SetData((const unsigned char*)pBuffer,nBufferLen);
+//		pTask->SetSupportOMP(supportOMP == 1);
+//		break;
+//	}
+//	ptrStatement = NULL;
+//	if(pTask)
+//	{
+//		char pszNameBuffer[128] = {0};  
+//		gethostname(pszNameBuffer,128);
+//		//获得本地IP地址  
+//		struct hostent* pHost;  
+//		pHost=gethostbyname(pszNameBuffer);//pHost返回的是指向主机的列表  
+//		std::string strIP;
+//		for (int i=0;pHost!=NULL&&pHost->h_addr_list[i]!=NULL;i++)  
+//		{  
+//			LPCSTR psz = inet_ntoa(*(struct in_addr *)pHost->h_addr_list[i]);//得到指向ip的psz变量  
+//			strIP += psz;  
+//			break;
+//		}  
+//
+//		pszSQL = "UPDATE `TASK` SET `idx` = ?,`updatetime`=?,`host`=?,`ip`=?,`pid`=? where id = ?";
+//		fields.clear();
+//		fields.push_back(MySQLPreparedStatement::Field(MYSQL_TYPE_LONG,sizeof(int)));
+//		fields.push_back(MySQLPreparedStatement::Field(MYSQL_TYPE_LONG,sizeof(int)));
+//		fields.push_back(MySQLPreparedStatement::Field(MYSQL_TYPE_VARCHAR,255));
+//		fields.push_back(MySQLPreparedStatement::Field(MYSQL_TYPE_VARCHAR,255));
+//		fields.push_back(MySQLPreparedStatement::Field(MYSQL_TYPE_LONG,sizeof(int)));
+//		fields.push_back(MySQLPreparedStatement::Field(MYSQL_TYPE_LONG,sizeof(int)));
+//		ptrStatement = 
+//			MySQLPreparedStatement::Create(this,pszSQL,fields);
+//		if(NULL == ptrStatement)
+//		{
+//			pTask->Release();
+//			return NULL;
+//		}
+//		ptrStatement->SetInt(0,pTask->GetIDX());
+//		ptrStatement->SetInt(1,nowTimeSecond);
+//		ptrStatement->SetString(2,pszNameBuffer);
+//		ptrStatement->SetString(3,strIP.c_str());
+//		ptrStatement->SetInt(4,getpid());
+//		ptrStatement->SetInt(5,pTask->GetTaskID());
+//		if(!ptrStatement->Excute())
+//		{
+//			pTask->Release();
+//			return NULL;
+//		}
+//	}
+//	transHelper.Commit();
+//	return pTask;
+//}
 void MySQLConnection::Abort(const Task* pTask)
 {
 	if(!m_bOpen)
@@ -626,6 +664,11 @@ void MySQLConnection::FinishTask(const Task* pTask)
 	transHelper.Commit();
 }
 
+void MySQLConnection::SetIdentification(const std::wstring& strIdentification)
+{
+	m_identity = strIdentification;
+}
+
 void MySQLConnection::CreateTasks(const std::vector<Ptr<Task> >& tasks
 									, const std::wstring& strNameSapce)
 {
@@ -658,9 +701,10 @@ void MySQLConnection::CreateTasks(const std::vector<Ptr<Task> >& tasks
 	if(!Lock())
 		return;
 
-	const char* pszSQL = "insert into `TASK`(level,func,ns,timeout,data) values(?,?,?,?,?)";
+	const char* pszSQL = "insert into `TASK`(level,supportOMP,func,ns,timeout,data) values(?,?,?,?,?,?)";
 
 	std::vector<MySQLPreparedStatement::Field> fields;
+	fields.push_back(MySQLPreparedStatement::Field(MYSQL_TYPE_LONG,sizeof(int)));
 	fields.push_back(MySQLPreparedStatement::Field(MYSQL_TYPE_LONG,sizeof(int)));
 	fields.push_back(MySQLPreparedStatement::Field(MYSQL_TYPE_VARCHAR,255));
 	fields.push_back(MySQLPreparedStatement::Field(MYSQL_TYPE_VARCHAR,255));
@@ -680,12 +724,13 @@ void MySQLConnection::CreateTasks(const std::vector<Ptr<Task> >& tasks
 	{
 		Task* pTask = citer->operator Task *();
 		ptrStatement->SetInt(0,pTask->GetTaskLevel());
-		ptrStatement->SetString(1,Unicode2Utf8(pTask->GetFunctionName()).c_str());
-		ptrStatement->SetString(2,strUTF8NS.c_str());
-		ptrStatement->SetInt(3,pTask->GetTimeOut());
+		ptrStatement->SetInt(1,pTask->IsSupportOMP() ? 1 : 0);
+		ptrStatement->SetString(2,Unicode2Utf8(pTask->GetFunctionName()).c_str());
+		ptrStatement->SetString(3,strUTF8NS.c_str());
+		ptrStatement->SetInt(4,pTask->GetTimeOut());
 
 		const unsigned char* pBuffer = pTask->GetData(nBufferLen);
-		ptrStatement->SetValue(4,pBuffer,nBufferLen);
+		ptrStatement->SetValue(5,pBuffer,nBufferLen);
 		
 		if(!ptrStatement->Excute())
 			return;

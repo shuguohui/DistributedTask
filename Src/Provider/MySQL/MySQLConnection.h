@@ -24,11 +24,13 @@ public:
 
 	virtual bool Open(const ConnectionInfo* pConnInfo);
 
+	virtual void SetIdentification(const std::wstring& strIdentification);
+
 	virtual  bool CreateRepository(const ConnectionInfo* pConn);
 
 	virtual  bool DropRepository(const ConnectionInfo* pConn);
 
-	virtual Task* GetTask(const std::wstring& strFunctionName);
+	//virtual Task* GetTask(const std::wstring& strFunctionName);
 
 	virtual Task* GetTask(const std::vector<std::wstring>& funcNames);
 
@@ -111,6 +113,7 @@ private:
 	Ptr<ConnectionInfo> m_connInfo;
 	void* m_tempBuffer;
 	int   m_tempBufferLen;
+	std::wstring m_identity;
 
 };
 NS_END

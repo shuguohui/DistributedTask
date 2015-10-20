@@ -25,11 +25,13 @@ public:
 
 	virtual bool Open(const ConnectionInfo* pConnInfo) = 0;
 
+	virtual void SetIdentification(const std::wstring& strIdentification) = 0;
+
 	//virtual std::vector<std::wstring> GetFunctionNames() = 0;
 
 	virtual std::vector<std::wstring> GetNameSpaces() = 0;
 
-	virtual Task* GetTask(const std::wstring& strFunctionName) = 0;
+	//virtual Task* GetTask(const std::wstring& strFunctionName) = 0;
 
 	virtual Task* GetTask(const std::vector<std::wstring>& funcNames) = 0;
 

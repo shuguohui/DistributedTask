@@ -28,6 +28,8 @@ public:
 
 	void RegisterFunction(Function* pFunc);
 
+	void SetIdentification(const std::wstring& strIdentification);
+
 	void UnRegisterFunction(const std::wstring& strFuncName);
 
 	void Run();
