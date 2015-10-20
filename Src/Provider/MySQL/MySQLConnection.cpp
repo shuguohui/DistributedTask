@@ -342,7 +342,7 @@ Task* MySQLConnection::GetTask(const std::vector<std::wstring>& funcNames)
 		sprintf(szSQL
 			, "select `id`,`idx`,`level`,`supportOMP`,`identification`,`func`,`ns`,`updatetime`,`timeout`,`data` FROM `TASK` where `func` in (%s) and identification = ? and `status` = 0 \
 			   UNION ALL \
-			   select `id`,`idx`,`level`,`supportOMP`,`identification`,`func`,`ns`,`updatetime`,`timeout`,`data` FROM `TASK` where `func` in (%s)  and `status` = 0 "
+			   select `id`,`idx`,`level`,`supportOMP`,`identification`,`func`,`ns`,`updatetime`,`timeout`,`data` FROM `TASK` where `func` in (%s)  and `status` = 0 order by `level` desc"
 			, ss.str().c_str()
 			, ss.str().c_str());
 	}
