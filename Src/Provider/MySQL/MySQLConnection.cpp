@@ -601,7 +601,7 @@ void MySQLConnection::Abort(const Task* pTask)
 		return;
 	ptrStatement = NULL;
 	//¸üÐÂTaskµÄ×´Ì¬
-	pszSQL = "UPDATE `TASK` SET updatetime = 0,`STATUS` = 0 where id=?";
+	pszSQL = "UPDATE `TASK` SET updatetime = 0,identification = 'NONE',`STATUS` = 0 where id=?";
 	ptrStatement = 
 		MySQLPreparedStatement::Create(this,pszSQL,fields);
 	if(NULL == ptrStatement)
