@@ -6,6 +6,7 @@
 #include <Core/utf8_.h>
 #include <vector>
 #include <sstream>
+#include <iostream>
 #include <process.h>
 #include <my_global.h>
 #include <mysql.h>
@@ -1128,9 +1129,13 @@ bool MySQLConnection::Ping()
 {
 	if(!m_bOpen)
 		return false;
-	int n = mysql_ping((MYSQL*)m_mysql);
-
-	const char* ps = mysql_error((MYSQL*)m_mysql);
+	MYSQL* mysql = (MYSQL*)m_mysql;
+	int n = mysql_ping(mysql);
+	if(n)
+	{
+		SetLastErrorCode(mysql_errno(mysql));
+		SetLastErrorMsg(mysql_error(mysql));
+	}
 	return n == 0;
 }
 
@@ -1175,14 +1180,26 @@ bool MySQLConnection::BeginTrans()
 
 	MYSQL* mysql = (MYSQL*)m_mysql;
 	if(mysql_query(mysql,"ROLLBACK"))
+	{
+		SetLastErrorCode(mysql_errno(mysql));
+		SetLastErrorMsg(mysql_error(mysql));
 		return false;
+	}
 
 	char sql[1024];
 	sprintf(sql,"SET TRANSACTION ISOLATION LEVEL %s",GetTransactionIsolationString(m_isolation));
 	if(mysql_query(mysql,sql))
+	{
+		SetLastErrorCode(mysql_errno(mysql));
+		SetLastErrorMsg(mysql_error(mysql));
 		return false;
+	}
 	if(mysql_query(mysql,"START TRANSACTION"))
+	{
+		SetLastErrorCode(mysql_errno(mysql));
+		SetLastErrorMsg(mysql_error(mysql));
 		return false;
+	}
 
 	m_IsTranStarted = true;
 	return true;
@@ -1197,7 +1214,11 @@ bool MySQLConnection::CommitTrans()
 		return false;
 	MYSQL* mysql = (MYSQL*)m_mysql;
 	if(mysql_query(mysql,"COMMIT"))
+	{
+		SetLastErrorCode(mysql_errno(mysql));
+		SetLastErrorMsg(mysql_error(mysql));
 		return false;
+	}
 	return true;
 }
 
@@ -1211,7 +1232,11 @@ bool MySQLConnection::RollbackTrans()
 
 	MYSQL* mysql = (MYSQL*)m_mysql;
 	if(mysql_query(mysql,"ROLLBACK"))
+	{
+		SetLastErrorCode(mysql_errno(mysql));
+		SetLastErrorMsg(mysql_error(mysql));
 		return false;
+	}
 	return true;
 }
 
@@ -1231,7 +1256,10 @@ int MySQLConnection::GetLastErrorCode() const
 void MySQLConnection::SetLastErrorMsg(const char* pszError)
 {
 	if(pszError)
+	{
+		std::cout << pszError << std::endl;
 		m_lastErrorMsg = Utf82Unicode(pszError);
+	}
 	else
 		m_lastErrorMsg.clear();
 }
