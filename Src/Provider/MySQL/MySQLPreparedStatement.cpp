@@ -288,6 +288,7 @@ bool MySQLPreparedStatement::SendLongBinaryData()
 			}
 		}
 	}
+	return true;
 }
 
 bool MySQLPreparedStatement::Excute()
@@ -310,8 +311,9 @@ bool MySQLPreparedStatement::Excute()
 		{
 			m_conn->SetLastErrorCode(mysql_stmt_errno(m_stmt));
 			m_conn->SetLastErrorMsg(mysql_stmt_error(m_stmt));
+			return false;
 		}
-		return false;
+		
 	}
 	for (int i = 0;i < m_paramCount;i++)
 	{
