@@ -81,6 +81,10 @@ public:
 	virtual bool RollbackTrans() = 0;
 
 	virtual bool TranStarted() const  = 0;
+
+	virtual const wchar_t* GetLastErrorMsg() const = 0;
+
+	virtual int GetLastErrorCode() const = 0;
 };
 NS_END
 #endif

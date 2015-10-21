@@ -170,11 +170,19 @@ bool MySQLPreparedStatement::Init(const char* pszSQL, const std::vector<Field>& 
 	}
 
 	if(mysql_stmt_prepare(m_stmt,pszSQL,strlen(pszSQL)))
+	{
+		m_conn->SetLastErrorCode(mysql_stmt_errno(m_stmt));
+		m_conn->SetLastErrorMsg(mysql_stmt_error(m_stmt));
 		return false;
+	}
 	if(m_paramCount > 0)
 	{
 		if(mysql_stmt_bind_param(m_stmt,m_param_bind))
+		{
+			m_conn->SetLastErrorCode(mysql_stmt_errno(m_stmt));
+			m_conn->SetLastErrorMsg(mysql_stmt_error(m_stmt));
 			return false;
+		}
 	}
 
 	m_result = mysql_stmt_result_metadata(m_stmt);
@@ -263,6 +271,8 @@ bool MySQLPreparedStatement::SendLongBinaryData()
 			{
 				if(mysql_stmt_send_long_data(m_stmt,i,pBuffer + nTotalWriteLen,nWriteLen))
 				{
+					m_conn->SetLastErrorCode(mysql_stmt_errno(m_stmt));
+					m_conn->SetLastErrorMsg(mysql_stmt_error(m_stmt));
 					return false;
 				}
 				nTotalWriteLen += nWriteLen;
@@ -290,13 +300,18 @@ bool MySQLPreparedStatement::Excute()
 	int nErr = mysql_stmt_execute(m_stmt);
 	if(nErr)
 	{
-		const char* psz = mysql_stmt_error(m_stmt);
+		m_conn->SetLastErrorCode(mysql_stmt_errno(m_stmt));
+		m_conn->SetLastErrorMsg(mysql_stmt_error(m_stmt));
 		return false;
 	}
 	if(m_result)
 	{
 		if(mysql_stmt_bind_result(m_stmt,m_result_bind))
-			return false;
+		{
+			m_conn->SetLastErrorCode(mysql_stmt_errno(m_stmt));
+			m_conn->SetLastErrorMsg(mysql_stmt_error(m_stmt));
+		}
+		return false;
 	}
 	for (int i = 0;i < m_paramCount;i++)
 	{
@@ -410,6 +425,9 @@ void MySQLPreparedStatement::GetBlob(int nPos,const void** pValue,unsigned int* 
 	m_result_bind[nPos].buffer_length = nLen;
 	if(mysql_stmt_fetch_column(m_stmt,&m_result_bind[nPos],nPos,0))
 	{
+		m_conn->SetLastErrorCode(mysql_stmt_errno(m_stmt));
+		m_conn->SetLastErrorMsg(mysql_stmt_error(m_stmt));
+
 		*pValue = NULL;
 		*pLen = 0;
 		return;

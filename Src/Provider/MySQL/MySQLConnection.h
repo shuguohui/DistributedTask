@@ -80,6 +80,10 @@ public:
 
 	virtual bool TranStarted() const;
 
+	virtual const wchar_t* GetLastErrorMsg() const;
+
+	virtual int GetLastErrorCode() const;
+
 public:
 	void* GetMySQLConn()
 	{
@@ -91,6 +95,10 @@ public:
 	struct tm GetDatabaseTime();
 
 	struct tm GetLocalTime();
+
+	void SetLastErrorMsg(const char* pszError);
+
+	void SetLastErrorCode(int nErrCode);
 private:
 	void Close();
 	const char* GetTransactionIsolationString(TransactionIsolation isolate);
@@ -115,6 +123,9 @@ private:
 	int   m_tempBufferLen;
 	std::wstring m_identity;
 
+
+	std::wstring m_lastErrorMsg;
+	int m_lastErrorCode;
 };
 NS_END
 #endif

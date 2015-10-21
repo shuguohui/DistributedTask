@@ -18,6 +18,7 @@ MySQLConnection::MySQLConnection()
 	, m_isolation(ReadCommitted)
 	, m_tempBuffer(NULL)
 	, m_tempBufferLen(0)
+	, m_lastErrorCode(0)
 {
 
 }
@@ -1218,5 +1219,25 @@ bool MySQLConnection::TranStarted() const
 {
 	return m_IsTranStarted;
 }
+const wchar_t* MySQLConnection::GetLastErrorMsg() const
+{
+	return m_lastErrorMsg.c_str();
+}
 
+int MySQLConnection::GetLastErrorCode() const
+{
+	return m_lastErrorCode;
+}
+void MySQLConnection::SetLastErrorMsg(const char* pszError)
+{
+	if(pszError)
+		m_lastErrorMsg = Utf82Unicode(pszError);
+	else
+		m_lastErrorMsg.clear();
+}
+
+void MySQLConnection::SetLastErrorCode(int nErrCode)
+{
+	m_lastErrorCode = nErrCode;
+}
 NS_END
