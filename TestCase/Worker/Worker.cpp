@@ -67,6 +67,19 @@ int main()
 	Ptr<Function> ptrFunction = Function::Create(L"test",&CallBack);
 	ptrWorker->RegisterFunction(ptrFunction);
 	ptrWorker->SetIdentification(L"my");
+
+	{
+		//测试读写大数据
+		int nLen = 1024 *10240;
+		void* pBuffer = malloc(nLen);
+		
+		ptrWorker->WriteData(L"天安门",L"MIN",pBuffer,nLen);
+
+		int nLen1 = 0;
+		const void* pBuffer1 = NULL;
+		ptrWorker->ReadData(L"天安门",L"MIN",(const void**)&pBuffer1,nLen1);
+		bool b = nLen == nLen1;
+	}
 	ptrWorker->Run();
 	/*bool b = ptrConn->Open(ptrConnInfo);
 	if(!b)

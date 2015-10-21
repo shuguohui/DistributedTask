@@ -925,7 +925,7 @@ bool MySQLConnection::CreateNameSpace(const std::wstring& strNameSpace)
 	sprintf(sql
 		,"CREATE TABLE `%s` \n\
 		(`key` varchar(255) NOT NULL,\n\
-		`value` MEDIUMBLOB ,\n\
+		`value` LONGBLOB ,\n\
 		PRIMARY KEY(`key`)\n\
 		) ENGINE=INNODB DEFAULT CHARSET=UTF8;"
 		, strTable.c_str());
@@ -1039,8 +1039,8 @@ bool MySQLConnection::WriteData(const std::wstring& strNameSpace
 
 	std::vector<MySQLPreparedStatement::Field> fields;
 	fields.push_back(MySQLPreparedStatement::Field(MYSQL_TYPE_VARCHAR,255));
-	fields.push_back(MySQLPreparedStatement::Field(MYSQL_TYPE_MEDIUM_BLOB,nBufferLen));
-	fields.push_back(MySQLPreparedStatement::Field(MYSQL_TYPE_MEDIUM_BLOB,nBufferLen));
+	fields.push_back(MySQLPreparedStatement::Field(MYSQL_TYPE_LONG_BLOB,nBufferLen));
+	fields.push_back(MySQLPreparedStatement::Field(MYSQL_TYPE_LONG_BLOB,nBufferLen));
 	Ptr<MySQLPreparedStatement> ptrStatement = 
 		MySQLPreparedStatement::Create(this,sql,fields);
 	if(NULL == ptrStatement)
